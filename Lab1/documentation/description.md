@@ -1,13 +1,10 @@
 Программа представляет собой социальную сеть, в которой каждый зарегестрированный пользователь может делать посты к себе на страницу и общаться с другими людьми через чат.  
 
+- Github проекта:
+![GitHub](https://github.com/Brinckley/SystemArchitecture_2024/tree/main)  
+
  - Пример диаграммы контейнеров:  
-![alt text](http://url/to/images/sc001.png)  
+![alt text](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab1/images/sc001.png)  
 
  - Пример динамической диаграммы:  
-![alt text](http://url/to/images/suc003.png)  
-
-- Github проекта:
-![alt text](http://url/to/images/suc003.png)  
-
-- Документация по DSL:
-![alt text](https://docs.structurizr.com/dsl/language)
+![alt text](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab1/images/suc003.png)   
