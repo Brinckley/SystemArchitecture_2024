@@ -5,7 +5,7 @@
 ![GitHub](https://github.com/Brinckley/SystemArchitecture_2024/tree/main)  
 
  - Пример диаграммы контейнеров:  
-![alt text](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab1/images/sc001.png)  
+![Img1](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_1_C4_Structurizr/images/sc001.png)  
 
  - Пример динамической диаграммы:  
-![alt text](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab1/images/suc003.png)   
+![Img2](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_1_C4_Structurizr/images/suc003.png)   
