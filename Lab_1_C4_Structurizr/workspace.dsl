@@ -44,11 +44,12 @@ workspace {
                 }
             }
 
-            user -> api_service "Register/Post/Chat" "REST HTTP:8080"
-
+           
             api_service -> user_database "Read/Update/Delete user data" "TCP 5432"
             api_service -> cache_database "Read/Update/Delete user data" "TCP 6379"
             api_service -> posts_msgs_database "Read/Update/Delete posts and msgs data" "TCP 27017"
+            
+            user -> api_service "Register/Post/Chat" "REST HTTP:8080"
         }
 
         user -> social_network "Interacts with his account and wall. Sends messages via PtP chat" "REST HTTP:8080"
@@ -92,7 +93,7 @@ workspace {
 
         container social_network {
             include *
-            autoLayout lr
+            autoLayout
         }
 
         properties { 
