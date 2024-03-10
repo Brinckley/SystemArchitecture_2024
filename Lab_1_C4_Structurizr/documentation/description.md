@@ -2,7 +2,7 @@
 Приложение состоит из сервиса, обрабатывающиего и выполняющего запросы от пользователя, и программ для хранения данных и кэширования.  
 
 - Github проекта:
-![GitHub](https://github.com/Brinckley/SystemArchitecture_2024/tree/main)  
+![GitHub](https://github.com/Brinckley/SystemArchitecture_2024/tree/main/Lab_1_C4_Structurizr)  
 
  - Пример диаграммы контейнеров:  
 ![Img1](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_1_C4_Structurizr/images/sc001.png)  
