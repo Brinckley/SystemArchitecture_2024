@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+  social_network:
+    tty: true
+    container_name: social_network
+    volumes:
+      - ..:/workspace/social_network
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    ports:
+      - 8080:8080
+    networks:
+      - sn-network
+
+  postgres:
+    container_name: user_db
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - PGDATA=/data/postgres
+      - POSTGRES_DB=sndb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../scripts/user_db_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - sn-network
+
+networks:
+  sn-network:
+    driver: "bridge"
+
+volumes:
+  pgdata:
