@@ -22,5 +22,5 @@ CREATE TABLE social_network.message (
   receiver_id   INT NOT NULL,
   content       TEXT NOT NULL,
   CONSTRAINT fk_sender   FOREIGN KEY(user_id) REFERENCES social_network.account(id),
-  CONSTRAINT fk_reciever FOREIGN KEY(user_id) REFERENCES social_network.account(id)
+  CONSTRAINT fk_receiver FOREIGN KEY(user_id) REFERENCES social_network.account(id)
 );
