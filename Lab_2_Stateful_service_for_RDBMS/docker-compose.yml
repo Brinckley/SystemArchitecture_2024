@@ -40,6 +40,18 @@ services:
     networks:
       - sn-network
 
+  data_loader_http:
+    container_name: data_loader_http
+    build:
+      context: ./data_loader_http
+    environment:
+        HOST: 'user_service'
+        PORT: 8083
+        ROUTE: '/account'
+        NUMBER: 10
+    networks:
+      - sn-network
+
 networks:
   sn-network:
     driver: "bridge"
