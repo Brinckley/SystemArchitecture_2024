@@ -11,9 +11,9 @@ CREATE TABLE IF NOT EXISTS social_network.account (
 
 CREATE TABLE social_network.post (
   id            SERIAL PRIMARY KEY,
-  user_id       INT NOT NULL,
+  account_id       INT NOT NULL,
   content       TEXT NOT NULL,
-  CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES social_network.account(id)
+  CONSTRAINT fk_user FOREIGN KEY(account_id) REFERENCES social_network.account(id)
 );
 
 CREATE TABLE social_network.message (

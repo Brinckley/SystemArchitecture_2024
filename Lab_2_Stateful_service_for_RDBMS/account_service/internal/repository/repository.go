@@ -3,7 +3,7 @@ package repository
 import "account_service/internal"
 
 type Storage interface {
-	CreateAccount(request *internal.CreateAccountRequest) (int, error)
+	CreateAccount(*internal.CreateAccountRequest) (int, error)
 	GetAccounts() ([]internal.Account, error)
 	GetAccountById(int) (*internal.Account, error)
 	DeleteAccount(int) error

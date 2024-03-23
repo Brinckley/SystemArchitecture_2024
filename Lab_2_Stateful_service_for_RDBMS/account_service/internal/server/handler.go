@@ -9,6 +9,15 @@ import (
 	"strconv"
 )
 
+func (s *AccountApiServer) getAccounts(w http.ResponseWriter, r *http.Request) error {
+	accounts, err := s.Storage.GetAccounts()
+	if err != nil {
+		return err
+	}
+	log.Println(accounts)
+	return writeJson(w, http.StatusOK, accounts)
+}
+
 func (s *AccountApiServer) createAccount(w http.ResponseWriter, r *http.Request) error {
 	var createAccountReq internal.CreateAccountRequest
 	if err := json.NewDecoder(r.Body).Decode(&createAccountReq); err != nil {
@@ -24,15 +33,6 @@ func (s *AccountApiServer) createAccount(w http.ResponseWriter, r *http.Request)
 		return err
 	}
 	return writeJson(w, http.StatusOK, accountId)
-}
-
-func (s *AccountApiServer) getAccounts(w http.ResponseWriter, r *http.Request) error {
-	accounts, err := s.Storage.GetAccounts()
-	if err != nil {
-		return err
-	}
-	log.Println(accounts)
-	return writeJson(w, http.StatusOK, accounts)
 }
 
 func (s *AccountApiServer) getAccount(w http.ResponseWriter, r *http.Request) error {
