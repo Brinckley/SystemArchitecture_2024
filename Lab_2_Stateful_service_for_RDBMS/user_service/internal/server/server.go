@@ -34,8 +34,6 @@ func (s *UserApiServer) Run() error {
 	router.HandleFunc("/account/{account_id}/messages", makeHTTPHandleFunc(s.getMessages)).Methods(http.MethodGet)
 	router.HandleFunc("/account/{account_id}/messages", makeHTTPHandleFunc(s.createMessage)).Methods(http.MethodPost)
 	router.HandleFunc("/account/{account_id}/messages/{msg_id}", makeHTTPHandleFunc(s.getMessage)).Methods(http.MethodGet)
-	router.HandleFunc("/account/{account_id}/messages/{msg_id}", makeHTTPHandleFunc(s.updateMessage)).Methods(http.MethodPut)
-	router.HandleFunc("/account/{account_id}/messages/{msg_id}", makeHTTPHandleFunc(s.deleteMessage)).Methods(http.MethodDelete)
 
 	router.HandleFunc("/account/{account_id}/posts", makeHTTPHandleFunc(s.getPosts)).Methods(http.MethodGet)
 	router.HandleFunc("/account/{account_id}/posts", makeHTTPHandleFunc(s.createPost)).Methods(http.MethodPost)

@@ -16,13 +16,3 @@ func (s *UserApiServer) getMessage(w http.ResponseWriter, r *http.Request) error
 
 	return writeJson(w, http.StatusOK, []byte{})
 }
-
-func (s *UserApiServer) updateMessage(w http.ResponseWriter, r *http.Request) error {
-
-	return writeJson(w, http.StatusOK, []byte{})
-}
-
-func (s *UserApiServer) deleteMessage(w http.ResponseWriter, r *http.Request) error {
-
-	return writeJson(w, http.StatusOK, []byte{})
-}
