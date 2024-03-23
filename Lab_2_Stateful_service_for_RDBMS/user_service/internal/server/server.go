@@ -3,34 +3,49 @@ package server
 import (
 	"github.com/gorilla/mux"
 	"net/http"
-	"user_service/internal/db"
 )
 
-type ApiServer struct {
-	Storage db.Storage
-	Host    string
-	Port    string
+type UserApiServer struct {
+	UserPort   string
+	AccountUrl string
+	MsgUrl     string
+	PostUrl    string
 }
 
-func NewApiServer(port string, storage db.Storage) *ApiServer {
-	return &ApiServer{
-		Storage: storage,
-		Port:    port,
+func NewUserApiServer(userPort, accountUrl, msgUrl, postUrl string) *UserApiServer {
+	return &UserApiServer{
+		UserPort:   userPort,
+		AccountUrl: accountUrl,
+		MsgUrl:     msgUrl,
+		PostUrl:    postUrl,
 	}
 }
 
-func (s *ApiServer) Run() {
+func (s *UserApiServer) Run() error {
 	router := mux.NewRouter()
 	router.Use(loggingMiddleWare)
 
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.getAccounts)).Methods(http.MethodGet)
-	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.getAccount)).Methods(http.MethodGet)
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.createAccount)).Methods(http.MethodPost)
-	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.modifyAccount)).Methods(http.MethodPut)
-	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.deleteAccount)).Methods(http.MethodDelete)
+	router.HandleFunc("/account/{account_id}", makeHTTPHandleFunc(s.getAccount)).Methods(http.MethodGet)
+	router.HandleFunc("/account/{account_id}", makeHTTPHandleFunc(s.updateAccount)).Methods(http.MethodPut)
+	router.HandleFunc("/account/{account_id}", makeHTTPHandleFunc(s.deleteAccount)).Methods(http.MethodDelete)
 
-	err := http.ListenAndServe(":"+s.Port, router)
+	router.HandleFunc("/account/{account_id}/messages", makeHTTPHandleFunc(s.getMessages)).Methods(http.MethodGet)
+	router.HandleFunc("/account/{account_id}/messages", makeHTTPHandleFunc(s.createMessage)).Methods(http.MethodPost)
+	router.HandleFunc("/account/{account_id}/messages/{msg_id}", makeHTTPHandleFunc(s.getMessage)).Methods(http.MethodGet)
+	router.HandleFunc("/account/{account_id}/messages/{msg_id}", makeHTTPHandleFunc(s.updateMessage)).Methods(http.MethodPut)
+	router.HandleFunc("/account/{account_id}/messages/{msg_id}", makeHTTPHandleFunc(s.deleteMessage)).Methods(http.MethodDelete)
+
+	router.HandleFunc("/account/{account_id}/posts", makeHTTPHandleFunc(s.getPosts)).Methods(http.MethodGet)
+	router.HandleFunc("/account/{account_id}/posts", makeHTTPHandleFunc(s.createPost)).Methods(http.MethodPost)
+	router.HandleFunc("/account/{account_id}/posts/{post_id}", makeHTTPHandleFunc(s.getPost)).Methods(http.MethodGet)
+	router.HandleFunc("/account/{account_id}/posts/{post_id}", makeHTTPHandleFunc(s.updatePost)).Methods(http.MethodPut)
+	router.HandleFunc("/account/{account_id}/posts/{post_id}", makeHTTPHandleFunc(s.deletePost)).Methods(http.MethodDelete)
+
+	err := http.ListenAndServe(":"+s.UserPort, router)
 	if err != nil {
-		return
+		return err
 	}
+	return nil
 }

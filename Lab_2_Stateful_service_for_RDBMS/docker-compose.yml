@@ -6,16 +6,30 @@ services:
     build:
       context: ./user_service
     ports:
-      - 8083:8083
+      - 8080:8080
     environment:
+        USER_SERVICE_PORT: 8080
+        ACCOUNT_SERVICE_PORT: 'http://account_service:8087'
+        MSG_SERVICE_PORT: 8088
+        POST_SERVICE_PORT: 8089
+    networks:
+      - sn-network
+      
+  account_service:
+    container_name: account_service
+    build:
+      context: ./account_service
+    environment:
+        ACCOUNT_SERVICE_PORT: 8087
         DB_HOST: 'postgres'
         DB_PORT: 5432
         DB_USER: 'admin'
         DB_PASSWORD: 'admin'
         DB_NAME: 'sndb'
         DB_SCHEMA: 'social_network'
-        USER_SERVICE_PORT: 8083
-        DB_ACCOUNT_NAME: 'account'
+        DB_ACCOUNT_TABLE_NAME: 'account'
+    expose:
+      - "8087"
     networks:
       - sn-network
 

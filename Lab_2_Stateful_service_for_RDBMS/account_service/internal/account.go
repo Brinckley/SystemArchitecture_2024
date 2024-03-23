@@ -1,5 +1,7 @@
 package internal
 
+import "account_service/internal/util"
+
 type CreateAccountRequest struct {
 	Username  string `json:"username"`
 	Password  string `json:"password"`
@@ -26,4 +28,13 @@ func AccountFrom(id int, request *CreateAccountRequest) *Account {
 		LastName:  request.LastName,
 		Email:     request.Email,
 	}
+}
+
+func (a *CreateAccountRequest) SetPassword(password string) error {
+	var err error
+	a.Password, err = util.HashPassword(password)
+	if err != nil {
+		return err
+	}
+	return nil
 }

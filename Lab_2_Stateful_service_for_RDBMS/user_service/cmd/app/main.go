@@ -3,18 +3,17 @@ package main
 import (
 	"log"
 	"os"
-	"user_service/internal/db"
 	"user_service/internal/server"
 )
 
 func main() {
-	envPort := os.Getenv("USER_SERVICE_PORT")
-	accountTableName := os.Getenv("DB_ACCOUNT_NAME")
-	postgresDb, err := db.NewPostgresStorage(accountTableName)
+	userServicePort := os.Getenv("USER_SERVICE_PORT")
+	accountServicePort := os.Getenv("ACCOUNT_SERVICE_PORT")
+	msgServicePort := os.Getenv("MSG_SERVICE_PORT")
+	postServicePort := os.Getenv("POST_SERVICE_PORT")
+	userApiServer := server.NewUserApiServer(userServicePort, accountServicePort, msgServicePort, postServicePort)
+	err := userApiServer.Run()
 	if err != nil {
-		log.Fatalf("unable to connect to postgres %s", err)
+		log.Fatalf("can't start the userService %s", err)
 	}
-	log.Println("---------------CONNECTED TO POSTGRES---------------")
-	apiServer := server.NewApiServer(envPort, postgresDb)
-	apiServer.Run()
 }

@@ -3,17 +3,9 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 )
-
-func writeJsonFromResponse(w http.ResponseWriter, status int, r *http.Response) error {
-	w.WriteHeader(status)
-	w.Header().Add("Content-Type", "application/json")
-	_, err := io.Copy(w, r.Body)
-	return err
-}
 
 func writeJson(w http.ResponseWriter, status int, content any) error {
 	w.WriteHeader(status)
@@ -33,9 +25,8 @@ type apiFunc func(w http.ResponseWriter, r *http.Request) error
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
-			logError := fmt.Errorf("unable to write data error : %s", err)
-			log.Println(logError)
-			err := writeJson(w, http.StatusBadRequest, json.NewEncoder(w).Encode(logError))
+			log.Println(fmt.Errorf("unable to write data error : %s", err))
+			err := writeJson(w, http.StatusBadRequest, err)
 			if err != nil {
 				log.Println(fmt.Errorf("unable to write error data error : %s", err))
 				return
