@@ -16,6 +16,9 @@ func (s *PostApiServer) getPosts(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+	if len(posts) == 0 {
+		return writeJson(w, http.StatusOK, "No posts for this user found")
+	}
 	return writeJson(w, http.StatusOK, posts)
 }
 
@@ -40,17 +43,12 @@ func (s *PostApiServer) getPost(w http.ResponseWriter, r *http.Request) error {
 	accountId, err := strconv.Atoi(accountIdRaw)
 	postIdRaw := mux.Vars(r)["post_id"]
 	postId, err := strconv.Atoi(postIdRaw)
-
-	var modPost internal.CreatePostRequest
-	err = json.NewDecoder(r.Body).Decode(&modPost)
-	if err != nil {
-		return err
-	}
-	account := internal.PostFrom(idInt, &modAccount)
-
 	postById, err := s.Storage.GetPostByAccountById(accountId, postId)
 	if err != nil {
 		return err
+	}
+	if postById == nil {
+		return writeJson(w, http.StatusOK, "No posts for this user found")
 	}
 	return writeJson(w, http.StatusOK, postById)
 }
@@ -60,7 +58,11 @@ func (s *PostApiServer) updatePost(w http.ResponseWriter, r *http.Request) error
 	accountId, err := strconv.Atoi(accountIdRaw)
 	postIdRaw := mux.Vars(r)["post_id"]
 	postId, err := strconv.Atoi(postIdRaw)
-	modifiedPost, err := s.Storage.UpdatePostByAccountById(accountId, postId)
+	var updatePostReq internal.CreatePostRequest
+	if err := json.NewDecoder(r.Body).Decode(&updatePostReq); err != nil {
+		return err
+	}
+	modifiedPost, err := s.Storage.UpdatePostByAccountById(accountId, postId, updatePostReq.Content)
 	if err != nil {
 		return err
 	}

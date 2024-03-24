@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"log"
 	"message_service/internal"
 	"net/http"
 	"strconv"
@@ -16,7 +17,11 @@ func (s *MessageApiServer) getAllMessagesTo(w http.ResponseWriter, r *http.Reque
 	}
 	messages, err := s.Storage.GetMessagesByReceiverId(accountId)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusNotFound, "cannot find messages")
+	}
+	if len(messages) == 0 {
+		return writeJson(w, http.StatusNotFound, "cannot find messages")
 	}
 	return writeJson(w, http.StatusOK, messages)
 }
@@ -28,7 +33,8 @@ func (s *MessageApiServer) createMessage(w http.ResponseWriter, r *http.Request)
 	}
 	messageId, err := s.Storage.CreateMessage(&createMessageReq)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot create message")
 	}
 	return writeJson(w, http.StatusOK, messageId)
 }
@@ -46,7 +52,8 @@ func (s *MessageApiServer) getMessageToById(w http.ResponseWriter, r *http.Reque
 	}
 	id, err := s.Storage.GetMessageById(accountId, msgId)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusNotFound, "cannot find message")
 	}
 	return writeJson(w, http.StatusOK, id)
 }

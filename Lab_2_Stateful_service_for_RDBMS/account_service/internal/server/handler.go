@@ -2,6 +2,7 @@ package server
 
 import (
 	"account_service/internal"
+	"account_service/internal/util"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"log"
@@ -15,22 +16,28 @@ func (s *AccountApiServer) getAccounts(w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 	log.Println(accounts)
+	if len(accounts) == 0 {
+		return writeJson(w, http.StatusNotFound, accounts)
+	}
 	return writeJson(w, http.StatusOK, accounts)
 }
 
 func (s *AccountApiServer) createAccount(w http.ResponseWriter, r *http.Request) error {
 	var createAccountReq internal.CreateAccountRequest
 	if err := json.NewDecoder(r.Body).Decode(&createAccountReq); err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode account data")
 	}
-	log.Println(createAccountReq)
-	err := createAccountReq.SetPassword(createAccountReq.Password)
+	newPassword, err := util.HashPassword(createAccountReq.Password)
 	if err != nil {
 		return err
 	}
+	createAccountReq.Password = newPassword
+	log.Println(createAccountReq)
 	accountId, err := s.Storage.CreateAccount(&createAccountReq)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot create account or already exists")
 	}
 	return writeJson(w, http.StatusOK, accountId)
 }
@@ -43,7 +50,8 @@ func (s *AccountApiServer) getAccount(w http.ResponseWriter, r *http.Request) er
 	}
 	account, err := s.Storage.GetAccountById(idInt)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusNotFound, "cannot find account")
 	}
 	return writeJson(w, http.StatusOK, account)
 }
@@ -52,21 +60,40 @@ func (s *AccountApiServer) updateAccount(w http.ResponseWriter, r *http.Request)
 	id := mux.Vars(r)["id"]
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode input data")
 	}
 	var modAccount internal.CreateAccountRequest
 	err = json.NewDecoder(r.Body).Decode(&modAccount)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode input data")
 	}
-	err = modAccount.SetPassword(modAccount.Password)
+
+	existingAccount, err := s.Storage.GetAccountById(idInt)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusNotFound, "cannot find the account or update it")
+	}
+
+	if util.DoPasswordsMatch(
+		existingAccount.Password,
+		modAccount.Password,
+	) {
+		log.Println("Password match found in update")
+		modAccount.Password = existingAccount.Password
+	} else {
+		modPassword, err := util.HashPassword(modAccount.Password)
+		if err != nil {
+			return err
+		}
+		modAccount.Password = modPassword
 	}
 	account := internal.AccountFrom(idInt, &modAccount)
 	accountModified, err := s.Storage.UpdateAccount(account)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusNotFound, "cannot find the account or update it")
 	}
 	return writeJson(w, http.StatusOK, accountModified)
 }
@@ -75,11 +102,13 @@ func (s *AccountApiServer) deleteAccount(w http.ResponseWriter, r *http.Request)
 	id := mux.Vars(r)["id"]
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode input data")
 	}
 	err = s.Storage.DeleteAccount(idInt)
 	if err != nil {
-		return err
+		log.Println(err)
+		return writeJson(w, http.StatusNotFound, "cannot find the account or delete it")
 	}
 	return writeJson(w, http.StatusOK, idInt)
 }

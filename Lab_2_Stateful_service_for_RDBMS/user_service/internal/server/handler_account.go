@@ -19,7 +19,7 @@ func (s *UserApiServer) createAccount(responseWriter http.ResponseWriter, userRe
 		return err
 	}
 	util.CopyHeadersToWriter(accountResp, responseWriter)
-	return writeJsonFromResponse(responseWriter, http.StatusOK, accountResp)
+	return writeJsonFromResponse(responseWriter, accountResp.StatusCode, accountResp)
 }
 
 func (s *UserApiServer) getAccounts(responseWriter http.ResponseWriter, userReq *http.Request) error {
@@ -32,7 +32,7 @@ func (s *UserApiServer) getAccounts(responseWriter http.ResponseWriter, userReq 
 		return err
 	}
 	util.CopyHeadersToWriter(accountResp, responseWriter)
-	return writeJsonFromResponse(responseWriter, http.StatusOK, accountResp)
+	return writeJsonFromResponse(responseWriter, accountResp.StatusCode, accountResp)
 }
 
 func (s *UserApiServer) getAccount(responseWriter http.ResponseWriter, userReq *http.Request) error {
@@ -46,7 +46,7 @@ func (s *UserApiServer) getAccount(responseWriter http.ResponseWriter, userReq *
 		return err
 	}
 	util.CopyHeadersToWriter(accountResp, responseWriter)
-	return writeJsonFromResponse(responseWriter, http.StatusOK, accountResp)
+	return writeJsonFromResponse(responseWriter, accountResp.StatusCode, accountResp)
 }
 
 func (s *UserApiServer) updateAccount(responseWriter http.ResponseWriter, userReq *http.Request) error {
@@ -60,7 +60,7 @@ func (s *UserApiServer) updateAccount(responseWriter http.ResponseWriter, userRe
 		return err
 	}
 	util.CopyHeadersToWriter(accountResp, responseWriter)
-	return writeJsonFromResponse(responseWriter, http.StatusOK, accountResp)
+	return writeJsonFromResponse(responseWriter, accountResp.StatusCode, accountResp)
 }
 
 func (s *UserApiServer) deleteAccount(responseWriter http.ResponseWriter, userReq *http.Request) error {
@@ -74,5 +74,5 @@ func (s *UserApiServer) deleteAccount(responseWriter http.ResponseWriter, userRe
 		return err
 	}
 	util.CopyHeadersToWriter(accountResp, responseWriter)
-	return writeJsonFromResponse(responseWriter, http.StatusOK, accountResp)
+	return writeJsonFromResponse(responseWriter, accountResp.StatusCode, accountResp)
 }
