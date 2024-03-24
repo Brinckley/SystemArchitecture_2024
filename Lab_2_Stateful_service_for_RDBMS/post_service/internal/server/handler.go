@@ -14,10 +14,10 @@ func (s *PostApiServer) getPosts(w http.ResponseWriter, r *http.Request) error {
 	accountId, err := strconv.Atoi(accountIdRaw)
 	posts, err := s.Storage.GetPostsByAccountId(accountId)
 	if err != nil {
-		return err
+		return writeJson(w, http.StatusNotFound, "No posts for this user found")
 	}
 	if len(posts) == 0 {
-		return writeJson(w, http.StatusOK, "No posts for this user found")
+		return writeJson(w, http.StatusNoContent, []internal.Post{})
 	}
 	return writeJson(w, http.StatusOK, posts)
 }
@@ -45,10 +45,10 @@ func (s *PostApiServer) getPost(w http.ResponseWriter, r *http.Request) error {
 	postId, err := strconv.Atoi(postIdRaw)
 	postById, err := s.Storage.GetPostByAccountById(accountId, postId)
 	if err != nil {
-		return err
+		return writeJson(w, http.StatusNotFound, "No posts for this user found")
 	}
 	if postById == nil {
-		return writeJson(w, http.StatusOK, "No posts for this user found")
+		return writeJson(w, http.StatusNoContent, internal.Post{})
 	}
 	return writeJson(w, http.StatusOK, postById)
 }
@@ -60,11 +60,11 @@ func (s *PostApiServer) updatePost(w http.ResponseWriter, r *http.Request) error
 	postId, err := strconv.Atoi(postIdRaw)
 	var updatePostReq internal.CreatePostRequest
 	if err := json.NewDecoder(r.Body).Decode(&updatePostReq); err != nil {
-		return err
+		return writeJson(w, http.StatusNotFound, "No posts for this user found")
 	}
 	modifiedPost, err := s.Storage.UpdatePostByAccountById(accountId, postId, updatePostReq.Content)
 	if err != nil {
-		return err
+		return writeJson(w, http.StatusNotFound, "No posts for this user found")
 	}
 	return writeJson(w, http.StatusOK, modifiedPost)
 }
@@ -76,7 +76,7 @@ func (s *PostApiServer) deletePost(w http.ResponseWriter, r *http.Request) error
 	postId, err := strconv.Atoi(postIdRaw)
 	deletedPostId, err := s.Storage.DeletePostByAccountById(accountId, postId)
 	if err != nil {
-		return err
+		return writeJson(w, http.StatusNotFound, "No posts for this user found")
 	}
 	return writeJson(w, http.StatusOK, deletedPostId)
 }

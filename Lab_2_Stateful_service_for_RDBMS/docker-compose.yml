@@ -96,9 +96,10 @@ services:
       context: ./data_loader_http
     environment:
         HOST: 'user_service'
-        PORT: 8083
-        ROUTE: '/account'
-        NUMBER: 10
+        PORT: '8080'
+        ROUTE_ACCOUNT: '/account'
+        ROUTE_MESSAGES: '/messages'
+        ROUTE_POSTS: '/posts'
     networks:
       - sn-network
 

@@ -91,11 +91,11 @@ func (p *PostgresStorage) UpdateAccount(account *internal.Account) (*internal.Ac
 	return p.GetAccountById(account.Id)
 }
 
-func (p *PostgresStorage) DeleteAccount(id int) error {
+func (p *PostgresStorage) DeleteAccount(id int) (int, error) {
 	deleteQuery := fmt.Sprintf("DELETE FROM %s WHERE id=$1;", p.tableName)
 	_, err := p.db.Exec(deleteQuery, id)
 	if err != nil {
-		return err
+		return -1, err
 	}
-	return nil
+	return id, nil
 }

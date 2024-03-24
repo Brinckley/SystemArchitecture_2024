@@ -21,7 +21,7 @@ func (s *MessageApiServer) getAllMessagesTo(w http.ResponseWriter, r *http.Reque
 		return writeJson(w, http.StatusNotFound, "cannot find messages")
 	}
 	if len(messages) == 0 {
-		return writeJson(w, http.StatusNotFound, "cannot find messages")
+		return writeJson(w, http.StatusNoContent, []internal.Message{})
 	}
 	return writeJson(w, http.StatusOK, messages)
 }
@@ -53,7 +53,7 @@ func (s *MessageApiServer) getMessageToById(w http.ResponseWriter, r *http.Reque
 	id, err := s.Storage.GetMessageById(accountId, msgId)
 	if err != nil {
 		log.Println(err)
-		return writeJson(w, http.StatusNotFound, "cannot find message")
+		return writeJson(w, http.StatusNotFound, internal.Message{})
 	}
 	return writeJson(w, http.StatusOK, id)
 }

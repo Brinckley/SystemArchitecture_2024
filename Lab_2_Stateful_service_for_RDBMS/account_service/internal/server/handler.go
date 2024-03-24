@@ -17,7 +17,7 @@ func (s *AccountApiServer) getAccounts(w http.ResponseWriter, r *http.Request) e
 	}
 	log.Println(accounts)
 	if len(accounts) == 0 {
-		return writeJson(w, http.StatusNotFound, accounts)
+		return writeJson(w, http.StatusNoContent, []internal.Account{})
 	}
 	return writeJson(w, http.StatusOK, accounts)
 }
@@ -52,6 +52,9 @@ func (s *AccountApiServer) getAccount(w http.ResponseWriter, r *http.Request) er
 	if err != nil {
 		log.Println(err)
 		return writeJson(w, http.StatusNotFound, "cannot find account")
+	}
+	if account == nil {
+		return writeJson(w, http.StatusNoContent, internal.Account{})
 	}
 	return writeJson(w, http.StatusOK, account)
 }
@@ -105,10 +108,10 @@ func (s *AccountApiServer) deleteAccount(w http.ResponseWriter, r *http.Request)
 		log.Println(err)
 		return writeJson(w, http.StatusBadRequest, "cannot decode input data")
 	}
-	err = s.Storage.DeleteAccount(idInt)
+	deletedId, err := s.Storage.DeleteAccount(idInt)
 	if err != nil {
 		log.Println(err)
 		return writeJson(w, http.StatusNotFound, "cannot find the account or delete it")
 	}
-	return writeJson(w, http.StatusOK, idInt)
+	return writeJson(w, http.StatusOK, deletedId)
 }
