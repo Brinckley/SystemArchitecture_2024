@@ -24,3 +24,5 @@ CREATE TABLE social_network.message (
   CONSTRAINT fk_sender   FOREIGN KEY(sender_id) REFERENCES social_network.account(id),
   CONSTRAINT fk_receiver FOREIGN KEY(receiver_id) REFERENCES social_network.account(id)
 );
+
+CREATE INDEX IF NOT EXISTS trgm_idx ON social_network.account (first_name, last_name);

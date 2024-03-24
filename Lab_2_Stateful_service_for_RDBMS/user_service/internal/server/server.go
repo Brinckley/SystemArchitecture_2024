@@ -27,6 +27,7 @@ func (s *UserApiServer) Run() error {
 
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.getAccounts)).Methods(http.MethodGet)
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.createAccount)).Methods(http.MethodPost)
+	router.HandleFunc("/account/search", makeHTTPHandleFunc(s.getAccountsByMask)).Methods(http.MethodGet)
 	router.HandleFunc("/account/{account_id}", makeHTTPHandleFunc(s.getAccount)).Methods(http.MethodGet)
 	router.HandleFunc("/account/{account_id}", makeHTTPHandleFunc(s.updateAccount)).Methods(http.MethodPut)
 	router.HandleFunc("/account/{account_id}", makeHTTPHandleFunc(s.deleteAccount)).Methods(http.MethodDelete)

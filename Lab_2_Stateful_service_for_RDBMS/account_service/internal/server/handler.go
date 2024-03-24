@@ -115,3 +115,21 @@ func (s *AccountApiServer) deleteAccount(w http.ResponseWriter, r *http.Request)
 	}
 	return writeJson(w, http.StatusOK, deletedId)
 }
+
+func (s *AccountApiServer) getAccountsByMask(w http.ResponseWriter, r *http.Request) error {
+	log.Println("MASK")
+	var searchAccount internal.AccountSearch
+	if err := json.NewDecoder(r.Body).Decode(&searchAccount); err != nil {
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode account data")
+	}
+	accounts, err := s.Storage.GetAccountsByMask(&searchAccount)
+	if err != nil {
+		return err
+	}
+	log.Println(accounts)
+	if len(accounts) == 0 {
+		return writeJson(w, http.StatusNoContent, []internal.Account{})
+	}
+	return writeJson(w, http.StatusOK, accounts)
+}

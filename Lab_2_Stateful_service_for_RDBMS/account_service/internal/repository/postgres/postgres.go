@@ -99,3 +99,31 @@ func (p *PostgresStorage) DeleteAccount(id int) (int, error) {
 	}
 	return id, nil
 }
+
+func (p *PostgresStorage) GetAccountsByMask(search *internal.AccountSearch) ([]internal.Account, error) {
+	likeQuery := fmt.Sprintf("SELECT * FROM %s WHERE first_name LIKE '%s' AND last_name LIKE '%s';",
+		p.tableName, search.FirstName, search.LastName)
+	log.Println(likeQuery)
+	rows, err := p.db.Query(likeQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	var accounts []internal.Account
+	for rows.Next() {
+		account := new(internal.Account)
+		err := rows.Scan(
+			&account.Id,
+			&account.Username,
+			&account.Password,
+			&account.FirstName,
+			&account.LastName,
+			&account.Email,
+		)
+		if err != nil {
+			return nil, err
+		}
+		accounts = append(accounts, *account)
+	}
+	return accounts, nil
+}

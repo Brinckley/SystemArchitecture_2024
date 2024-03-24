@@ -27,6 +27,7 @@ func (s *AccountApiServer) Run() {
 	router.HandleFunc("/{id}", makeHTTPHandleFunc(s.getAccount)).Methods(http.MethodGet)
 	router.HandleFunc("/{id}", makeHTTPHandleFunc(s.updateAccount)).Methods(http.MethodPut)
 	router.HandleFunc("/{id}", makeHTTPHandleFunc(s.deleteAccount)).Methods(http.MethodDelete)
+	router.HandleFunc("/search", makeHTTPHandleFunc(s.getAccountsByMask)).Methods(http.MethodGet)
 
 	err := http.ListenAndServe(":"+s.AccountPort, router)
 	if err != nil {

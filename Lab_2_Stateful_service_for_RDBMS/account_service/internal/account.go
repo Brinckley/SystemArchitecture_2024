@@ -17,6 +17,11 @@ type Account struct {
 	Email     string `json:"email"`
 }
 
+type AccountSearch struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
 func AccountFrom(id int, request *CreateAccountRequest) *Account {
 	return &Account{
 		Id:        id,
