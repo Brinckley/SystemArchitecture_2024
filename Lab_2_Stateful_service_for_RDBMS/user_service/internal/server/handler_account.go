@@ -7,7 +7,7 @@ import (
 )
 
 func (s *UserApiServer) createAccount(responseWriter http.ResponseWriter, userReq *http.Request) error {
-	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/accounts")
 	if err != nil {
 		return writeJson(responseWriter, http.StatusInternalServerError, err)
 	}
@@ -20,7 +20,7 @@ func (s *UserApiServer) createAccount(responseWriter http.ResponseWriter, userRe
 }
 
 func (s *UserApiServer) getAccounts(responseWriter http.ResponseWriter, userReq *http.Request) error {
-	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/accounts")
 	if err != nil {
 		return writeJson(responseWriter, http.StatusInternalServerError, err)
 	}
@@ -34,7 +34,7 @@ func (s *UserApiServer) getAccounts(responseWriter http.ResponseWriter, userReq 
 
 func (s *UserApiServer) getAccount(responseWriter http.ResponseWriter, userReq *http.Request) error {
 	id := mux.Vars(userReq)["account_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/"+id)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/accounts/"+id)
 	if err != nil {
 		return writeJson(responseWriter, http.StatusInternalServerError, err)
 	}
@@ -48,7 +48,7 @@ func (s *UserApiServer) getAccount(responseWriter http.ResponseWriter, userReq *
 
 func (s *UserApiServer) updateAccount(responseWriter http.ResponseWriter, userReq *http.Request) error {
 	id := mux.Vars(userReq)["account_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/"+id)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/accounts/"+id)
 	if err != nil {
 		return writeJson(responseWriter, http.StatusInternalServerError, err)
 	}
@@ -62,7 +62,7 @@ func (s *UserApiServer) updateAccount(responseWriter http.ResponseWriter, userRe
 
 func (s *UserApiServer) deleteAccount(responseWriter http.ResponseWriter, userReq *http.Request) error {
 	id := mux.Vars(userReq)["account_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/"+id)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/accounts/"+id)
 	if err != nil {
 		return writeJson(responseWriter, http.StatusInternalServerError, err)
 	}
