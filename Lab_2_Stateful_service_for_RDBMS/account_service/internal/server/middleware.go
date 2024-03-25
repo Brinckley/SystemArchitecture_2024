@@ -24,6 +24,7 @@ type apiFunc func(w http.ResponseWriter, r *http.Request) error
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.URL)
 		if err := f(w, r); err != nil {
 			log.Println(fmt.Errorf("unable to write data error : %s", err))
 			err := writeJson(w, http.StatusBadRequest, err)
