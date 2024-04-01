@@ -4,14 +4,14 @@ data_loader_http - программа на языке python, наполняющ
 
 
 ## Получить все аккаунты
-![Get all accounts](https://github.com/Brinckley/SystemArchitecture_2024/tree/main/Lab_2_Stateful_service_for_RDBMS/imgs/il1.jpg)
+![Get all accounts](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_2_Stateful_service_for_RDBMS/imgs/il1.jpg)
 ## Добавить новый аккаунт
-![Add accounts](https://github.com/Brinckley/SystemArchitecture_2024/tree/main/Lab_2_Stateful_service_for_RDBMS/imgs/il2.jpg)
+![Add accounts](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_2_Stateful_service_for_RDBMS/imgs/il2.jpg)
 ## Получить аккаунт по номеру
-![Get account](https://github.com/Brinckley/SystemArchitecture_2024/tree/main/Lab_2_Stateful_service_for_RDBMS/imgs/il3.jpg)
-![No account](https://github.com/Brinckley/SystemArchitecture_2024/tree/main/Lab_2_Stateful_service_for_RDBMS/imgs/il4.jpg)
+![Get account](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_2_Stateful_service_for_RDBMS/imgs/il3.jpg)
+![No account](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_2_Stateful_service_for_RDBMS/imgs/il4.jpg)
 ## Обновить аккаунт по номеру
-![Get account](https://github.com/Brinckley/SystemArchitecture_2024/tree/main/Lab_2_Stateful_service_for_RDBMS/imgs/il5.jpg)
-![No account](https://github.com/Brinckley/SystemArchitecture_2024/tree/main/Lab_2_Stateful_service_for_RDBMS/imgs/il6.jpg)
+![Get account](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_2_Stateful_service_for_RDBMS/imgs/il5.jpg)
+![No account](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_2_Stateful_service_for_RDBMS/imgs/il6.jpg)
 ## Поиск по маске
-![Mask search](https://github.com/Brinckley/SystemArchitecture_2024/tree/main/Lab_2_Stateful_service_for_RDBMS/imgs/il7.jpg)
+![Mask search](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_2_Stateful_service_for_RDBMS/imgs/il7.jpg)
