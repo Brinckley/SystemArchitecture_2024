@@ -12,6 +12,9 @@ services:
         ACCOUNT_SERVICE_URL: 'http://account_service:8087'
         MSG_SERVICE_URL: 'http://message_service:8088'
         POST_SERVICE_URL: 'http://post_service:8089'
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - sn-network
       
@@ -30,6 +33,11 @@ services:
         DB_ACCOUNT_TABLE_NAME: 'account'
     expose:
       - "8087"
+    depends_on:
+      user_service:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     networks:
       - sn-network
       
@@ -48,6 +56,11 @@ services:
         DB_MESSAGE_TABLE_NAME: 'message'
     expose:
       - "8088"
+    depends_on:
+      user_service:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     networks:
       - sn-network
       
@@ -64,6 +77,11 @@ services:
         DB_NAME: 'sndb'
         DB_SCHEMA: 'social_network'
         DB_POST_TABLE_NAME: 'post'
+    depends_on:
+      user_service:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     expose:
       - "8089"
     networks:
@@ -100,6 +118,9 @@ services:
         ROUTE_ACCOUNT: '/account'
         ROUTE_MESSAGES: '/messages'
         ROUTE_POSTS: '/posts'
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - sn-network
 
