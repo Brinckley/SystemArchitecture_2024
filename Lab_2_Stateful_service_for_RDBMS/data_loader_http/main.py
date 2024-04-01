@@ -35,7 +35,7 @@ def send_dataframe(account_url, post_route, msg_route, number):
 def main():
     host_env = os.getenv("HOST")
     port_env = os.getenv("PORT")
-    number_env = 70000
+    number_env = 700
     account_route = os.getenv("ROUTE_ACCOUNT")
     message_route = os.getenv("ROUTE_MESSAGES")
     post_route = os.getenv("ROUTE_POSTS")
