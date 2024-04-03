@@ -108,16 +108,26 @@ services:
     networks:
       - sn-network
 
-  data_loader_http:
-    container_name: data_loader_http
+ # data_loader_http:
+ #   container_name: data_loader_http
+ #   build:
+ #     context: ./data_loader_http
+ #   environment:
+ #       HOST: 'user_service'
+ #       PORT: '8080'
+ #       ROUTE_ACCOUNT: '/account'
+ #       ROUTE_MESSAGES: '/messages'
+ #       ROUTE_POSTS: '/posts'
+ #   depends_on:
+ #     postgres:
+ #       condition: service_healthy
+ #   networks:
+ #     - sn-network
+
+  insert_maker:
+    container_name: insert_maker
     build:
-      context: ./data_loader_http
-    environment:
-        HOST: 'user_service'
-        PORT: '8080'
-        ROUTE_ACCOUNT: '/account'
-        ROUTE_MESSAGES: '/messages'
-        ROUTE_POSTS: '/posts'
+      context: ./insert_maker
     depends_on:
       postgres:
         condition: service_healthy
