@@ -1,17 +1,17 @@
 package server
 
 import (
-	"account_service/internal/repository"
+	"account_service/internal/storage"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 type AccountApiServer struct {
-	Storage     repository.Storage
+	Storage     storage.Storage
 	AccountPort string
 }
 
-func NewAccountApiServer(port string, storage repository.Storage) *AccountApiServer {
+func NewAccountApiServer(port string, storage storage.Storage) *AccountApiServer {
 	return &AccountApiServer{
 		Storage:     storage,
 		AccountPort: port,
