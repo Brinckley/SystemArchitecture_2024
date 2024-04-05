@@ -6,7 +6,7 @@ import (
 )
 
 type Storage interface {
-	Create(ctx context.Context, account internal.Account) (string, error)
+	Create(ctx context.Context, account internal.AccountDto) (string, error)
 	GetAll(ctx context.Context) ([]internal.Account, error)
 	GetById(ctx context.Context, id string) (internal.Account, error)
 	Delete(ctx context.Context, id string) error

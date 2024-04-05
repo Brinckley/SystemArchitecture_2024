@@ -9,7 +9,7 @@ type AccountDto struct {
 }
 
 type Account struct {
-	Id        int    `json:"id" bson:"_id,omitempty"`
+	Id        string `json:"id" bson:"_id,omitempty"`
 	Username  string `json:"username" bson:"username"`
 	Password  string `json:"password" bson:"password"`
 	FirstName string `json:"first_name" bson:"first_name"`

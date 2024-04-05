@@ -2,6 +2,7 @@ package server
 
 import (
 	"account_service/internal/storage"
+	"context"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -9,12 +10,14 @@ import (
 type AccountApiServer struct {
 	Storage     storage.Storage
 	AccountPort string
+	Ctx         context.Context
 }
 
-func NewAccountApiServer(port string, storage storage.Storage) *AccountApiServer {
+func NewAccountApiServer(port string, storage storage.Storage, ctx context.Context) *AccountApiServer {
 	return &AccountApiServer{
 		Storage:     storage,
 		AccountPort: port,
+		Ctx:         ctx,
 	}
 }
 
@@ -22,7 +25,7 @@ func (s *AccountApiServer) Run() {
 	router := mux.NewRouter()
 	router.Use(loggingMiddleWare)
 
-	router.HandleFunc("/search", makeHTTPHandleFunc(s.getAccountsByMask)).Methods(http.MethodGet)
+	//router.HandleFunc("/search", makeHTTPHandleFunc(s.getAccountsByMask)).Methods(http.MethodGet)
 	router.HandleFunc("/accounts", makeHTTPHandleFunc(s.getAccounts)).Methods(http.MethodGet)
 	router.HandleFunc("/accounts", makeHTTPHandleFunc(s.createAccount)).Methods(http.MethodPost)
 	router.HandleFunc("/accounts/{id}", makeHTTPHandleFunc(s.getAccount)).Methods(http.MethodGet)
