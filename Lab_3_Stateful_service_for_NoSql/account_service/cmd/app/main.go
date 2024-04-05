@@ -24,6 +24,6 @@ func main() {
 	storage := mongo.NewStorage(mongoDatabase, collectionName)
 
 	log.Println("---------------CONNECTED TO MONGO FROM ACCOUNT SERVICE---------------")
-	apiServer := server.NewAccountApiServer(appPort, storage, ctx)
+	apiServer := server.NewAccountApiServer(appPort, storage, &ctx)
 	apiServer.Run()
 }

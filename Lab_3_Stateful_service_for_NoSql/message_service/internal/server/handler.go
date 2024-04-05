@@ -2,58 +2,38 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
-	"log"
 	"message_service/internal"
 	"net/http"
-	"strconv"
 )
 
 func (s *MessageApiServer) getAllMessagesTo(w http.ResponseWriter, r *http.Request) error {
-	accountIdRaw := mux.Vars(r)["account_id"]
-	accountId, err := strconv.Atoi(accountIdRaw)
+	accountId := mux.Vars(r)["account_id"]
+	messages, err := s.Storage.GetByDestId(*s.Context, accountId)
 	if err != nil {
-		return err
-	}
-	messages, err := s.Storage.GetMessagesByReceiverId(accountId)
-	if err != nil {
-		log.Println(err)
-		return writeJson(w, http.StatusNotFound, "cannot find messages")
-	}
-	if len(messages) == 0 {
-		return writeJson(w, http.StatusNoContent, []internal.Message{})
+		return writeJson(w, http.StatusNoContent, err)
 	}
 	return writeJson(w, http.StatusOK, messages)
 }
 
 func (s *MessageApiServer) createMessage(w http.ResponseWriter, r *http.Request) error {
-	var createMessageReq internal.CreateMessageRequest
-	if err := json.NewDecoder(r.Body).Decode(&createMessageReq); err != nil {
-		return err
+	var msgDto internal.MessageDto
+	if err := json.NewDecoder(r.Body).Decode(&msgDto); err != nil {
+		return writeJson(w, http.StatusBadRequest, fmt.Errorf("fail to handle request body error %v", err))
 	}
-	messageId, err := s.Storage.CreateMessage(&createMessageReq)
+	messageId, err := s.Storage.Create(*s.Context, msgDto)
 	if err != nil {
-		log.Println(err)
-		return writeJson(w, http.StatusBadRequest, "cannot create message")
+		return writeJson(w, http.StatusNoContent, err)
 	}
-	return writeJson(w, http.StatusOK, messageId)
+	return writeJson(w, http.StatusOK, fmt.Sprintf("msg with id %s created", messageId))
 }
 
-func (s *MessageApiServer) getMessageToById(w http.ResponseWriter, r *http.Request) error {
+func (s *MessageApiServer) getMessageByDestId(w http.ResponseWriter, r *http.Request) error {
 	accountIdRaw := mux.Vars(r)["account_id"]
-	accountId, err := strconv.Atoi(accountIdRaw)
+	messages, err := s.Storage.GetByDestId(*s.Context, accountIdRaw)
 	if err != nil {
-		return err
+		return writeJson(w, http.StatusNoContent, err)
 	}
-	msgIdRaw := mux.Vars(r)["id"]
-	msgId, err := strconv.Atoi(msgIdRaw)
-	if err != nil {
-		return err
-	}
-	id, err := s.Storage.GetMessageById(accountId, msgId)
-	if err != nil {
-		log.Println(err)
-		return writeJson(w, http.StatusNotFound, internal.Message{})
-	}
-	return writeJson(w, http.StatusOK, id)
+	return writeJson(w, http.StatusOK, messages)
 }

@@ -127,3 +127,7 @@ func (db *Db) Delete(ctx context.Context, hexId string) error {
 
 	return nil
 }
+
+func (db *Db) GetByMask(ctx context.Context, regex internal.AccountSearch) ([]internal.Account, error) {
+	return nil, nil
+}

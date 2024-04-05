@@ -1,20 +1,23 @@
 package server
 
 import (
+	"context"
 	"github.com/gorilla/mux"
 	"net/http"
-	"post_service/internal/repository"
+	"post_service/internal/storage"
 )
 
 type PostApiServer struct {
-	Storage  repository.Storage
+	Storage  storage.Storage
 	PostPort string
+	Context  *context.Context
 }
 
-func NewPostApiServer(port string, storage repository.Storage) *PostApiServer {
+func NewPostApiServer(port string, storage storage.Storage, ctx *context.Context) *PostApiServer {
 	return &PostApiServer{
 		Storage:  storage,
 		PostPort: port,
+		Context:  ctx,
 	}
 }
 

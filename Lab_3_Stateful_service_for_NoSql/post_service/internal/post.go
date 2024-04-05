@@ -1,20 +1,12 @@
 package internal
 
-type CreatePostRequest struct {
-	AccountId int    `json:"account_id"`
-	Content   string `json:"content"`
+type PostDto struct {
+	AccountId string `json:"account_id" bson:"account_id"`
+	Content   string `json:"content" bson:"content"`
 }
 
 type Post struct {
-	Id        int    `json:"id"`
-	AccountId int    `json:"account_id"`
-	Content   string `json:"content"`
-}
-
-func PostFrom(id int, createPost *CreatePostRequest) *Post {
-	return &Post{
-		Id:        id,
-		AccountId: createPost.AccountId,
-		Content:   createPost.Content,
-	}
+	Id        string `json:"id" bson:"_id,omitempty"`
+	AccountId string `json:"account_id" bson:"account_id"`
+	Content   string `json:"content" bson:"content"`
 }

@@ -10,10 +10,10 @@ import (
 type AccountApiServer struct {
 	Storage     storage.Storage
 	AccountPort string
-	Ctx         context.Context
+	Ctx         *context.Context
 }
 
-func NewAccountApiServer(port string, storage storage.Storage, ctx context.Context) *AccountApiServer {
+func NewAccountApiServer(port string, storage storage.Storage, ctx *context.Context) *AccountApiServer {
 	return &AccountApiServer{
 		Storage:     storage,
 		AccountPort: port,
