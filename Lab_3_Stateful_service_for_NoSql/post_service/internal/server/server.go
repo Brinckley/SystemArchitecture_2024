@@ -25,7 +25,7 @@ func (s *PostApiServer) Run() {
 	router := mux.NewRouter()
 	router.Use(loggingMiddleWare)
 
-	router.HandleFunc("/{account_id}", makeHTTPHandleFunc(s.getPosts)).Methods(http.MethodGet)
+	router.HandleFunc("/{account_id}", makeHTTPHandleFunc(s.getPostsByAccId)).Methods(http.MethodGet)
 	router.HandleFunc("/{account_id}", makeHTTPHandleFunc(s.createPost)).Methods(http.MethodPost)
 	router.HandleFunc("/{account_id}/{post_id}", makeHTTPHandleFunc(s.getPost)).Methods(http.MethodGet)
 	router.HandleFunc("/{account_id}/{post_id}", makeHTTPHandleFunc(s.updatePost)).Methods(http.MethodPut)

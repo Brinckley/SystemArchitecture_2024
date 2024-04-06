@@ -2,81 +2,61 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"post_service/internal"
-	"strconv"
 )
 
-func (s *PostApiServer) getPosts(w http.ResponseWriter, r *http.Request) error {
-	accountIdRaw := mux.Vars(r)["account_id"]
-	accountId, err := strconv.Atoi(accountIdRaw)
-	posts, err := s.Storage.GetPostsByAccountId(accountId)
-	if err != nil {
-		return writeJson(w, http.StatusNotFound, "No posts for this user found")
-	}
-	if len(posts) == 0 {
-		return writeJson(w, http.StatusNoContent, []internal.Post{})
-	}
-	return writeJson(w, http.StatusOK, posts)
-}
-
 func (s *PostApiServer) createPost(w http.ResponseWriter, r *http.Request) error {
-	accountIdRaw := mux.Vars(r)["account_id"]
-	accountId, err := strconv.Atoi(accountIdRaw)
-	var createPostReq internal.CreatePostRequest
+	var createPostReq internal.PostDto
 	if err := json.NewDecoder(r.Body).Decode(&createPostReq); err != nil {
-		return err
+		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("fail to handle data error %v", err))
 	}
-	createPostReq.AccountId = accountId
-	log.Println(createPostReq)
-	postId, err := s.Storage.CreatePost(&createPostReq)
+	postId, err := s.Storage.Create(*s.Context, createPostReq)
 	if err != nil {
-		return err
+		return writeJson(w, http.StatusNoContent, err)
 	}
 	return writeJson(w, http.StatusOK, postId)
 }
 
 func (s *PostApiServer) getPost(w http.ResponseWriter, r *http.Request) error {
-	accountIdRaw := mux.Vars(r)["account_id"]
-	accountId, err := strconv.Atoi(accountIdRaw)
-	postIdRaw := mux.Vars(r)["post_id"]
-	postId, err := strconv.Atoi(postIdRaw)
-	postById, err := s.Storage.GetPostByAccountById(accountId, postId)
+	postId := mux.Vars(r)["post_id"]
+	postById, err := s.Storage.GetById(*s.Context, postId)
 	if err != nil {
-		return writeJson(w, http.StatusNotFound, "No posts for this user found")
-	}
-	if postById == nil {
-		return writeJson(w, http.StatusNoContent, internal.Post{})
+		return writeJson(w, http.StatusNoContent, err)
 	}
 	return writeJson(w, http.StatusOK, postById)
 }
 
-func (s *PostApiServer) updatePost(w http.ResponseWriter, r *http.Request) error {
-	accountIdRaw := mux.Vars(r)["account_id"]
-	accountId, err := strconv.Atoi(accountIdRaw)
-	postIdRaw := mux.Vars(r)["post_id"]
-	postId, err := strconv.Atoi(postIdRaw)
-	var updatePostReq internal.CreatePostRequest
-	if err := json.NewDecoder(r.Body).Decode(&updatePostReq); err != nil {
-		return writeJson(w, http.StatusNotFound, "No posts for this user found")
-	}
-	modifiedPost, err := s.Storage.UpdatePostByAccountById(accountId, postId, updatePostReq.Content)
+func (s *PostApiServer) getPostsByAccId(w http.ResponseWriter, r *http.Request) error {
+	accountId := mux.Vars(r)["account_id"]
+	posts, err := s.Storage.GetByAccountId(*s.Context, accountId)
 	if err != nil {
-		return writeJson(w, http.StatusNotFound, "No posts for this user found")
+		return writeJson(w, http.StatusNoContent, err)
 	}
-	return writeJson(w, http.StatusOK, modifiedPost)
+	return writeJson(w, http.StatusOK, posts)
+}
+
+func (s *PostApiServer) updatePost(w http.ResponseWriter, r *http.Request) error {
+	postId := mux.Vars(r)["post_id"]
+	var updatePostReq internal.Post
+	if err := json.NewDecoder(r.Body).Decode(&updatePostReq); err != nil {
+		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("fail to handle data error %v", err))
+	}
+	updatePostReq.Id = postId
+	err := s.Storage.Update(*s.Context, updatePostReq)
+	if err != nil {
+		return writeJson(w, http.StatusBadRequest, err)
+	}
+	return writeJson(w, http.StatusOK, "post updated")
 }
 
 func (s *PostApiServer) deletePost(w http.ResponseWriter, r *http.Request) error {
-	accountIdRaw := mux.Vars(r)["account_id"]
-	accountId, err := strconv.Atoi(accountIdRaw)
-	postIdRaw := mux.Vars(r)["post_id"]
-	postId, err := strconv.Atoi(postIdRaw)
-	deletedPostId, err := s.Storage.DeletePostByAccountById(accountId, postId)
+	postId := mux.Vars(r)["post_id"]
+	err := s.Storage.Delete(*s.Context, postId)
 	if err != nil {
-		return writeJson(w, http.StatusNotFound, "No posts for this user found")
+		return writeJson(w, http.StatusBadRequest, err)
 	}
-	return writeJson(w, http.StatusOK, deletedPostId)
+	return writeJson(w, http.StatusOK, "post deleted")
 }

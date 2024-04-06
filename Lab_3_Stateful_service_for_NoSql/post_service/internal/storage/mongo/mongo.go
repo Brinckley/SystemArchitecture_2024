@@ -36,7 +36,7 @@ func (db *Db) Create(ctx context.Context, postDto internal.PostDto) (string, err
 func (db *Db) GetById(ctx context.Context, hexId string) (post internal.Post, err error) {
 	oid, err := primitive.ObjectIDFromHex(hexId)
 	if err != nil {
-		return post, err
+		return post, fmt.Errorf("failed to convert id error %v", err)
 	}
 
 	filterById := bson.M{
@@ -57,9 +57,26 @@ func (db *Db) GetById(ctx context.Context, hexId string) (post internal.Post, er
 	return post, nil
 }
 
-func (db *Db) GetByAccountId(ctx context.Context, id string) ([]internal.Post, error) {
-	//TODO implement me
-	panic("implement me")
+func (db *Db) GetByAccountId(ctx context.Context, hexId string) (posts []internal.Post, err error) {
+	oid, err := primitive.ObjectIDFromHex(hexId)
+	if err != nil {
+		return posts, fmt.Errorf("failed to convert id error %v", err)
+	}
+
+	filterByAccId := bson.D{{"account_id", oid}}
+
+	result, _ := db.Collection.Find(ctx, filterByAccId)
+	if result.Err() != nil {
+		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
+			return posts, fmt.Errorf("cannot find the document")
+		}
+		return posts, fmt.Errorf("cannot find post with account id %s in database err: %v", hexId, err)
+	}
+
+	if err := result.Decode(&posts); err != nil {
+		return posts, fmt.Errorf("cannot decode post from result error : %v", err)
+	}
+	return posts, nil
 }
 
 func (db *Db) Update(ctx context.Context, post internal.Post) error {
@@ -68,38 +85,54 @@ func (db *Db) Update(ctx context.Context, post internal.Post) error {
 		return fmt.Errorf("cannot get post id error %v", err)
 	}
 
-	accountBytes, err := bson.Marshal(post)
+	postBytes, err := bson.Marshal(post)
 	if err != nil {
 		return fmt.Errorf("fail to marshall post data error %v", err)
 	}
 
-	var updateAccountObj bson.M
-	err = bson.Unmarshal(accountBytes, &updateAccountObj)
+	var updatePostObj bson.M
+	err = bson.Unmarshal(postBytes, &updatePostObj)
 	if err != nil {
 		return fmt.Errorf("fail to unmarshall post data as bytes error %v", err)
 	}
-	delete(updateAccountObj, "_id")
+	delete(updatePostObj, "_id")
 
 	filterById := bson.M{
 		"_id": objectId,
 	}
-	updateMsg := bson.M{
-		"$set": updateAccountObj,
+	updatePost := bson.M{
+		"$set": updatePostObj,
 	}
 
-	result, err := db.Collection.UpdateOne(ctx, filterById, updateAcc)
+	result, err := db.Collection.UpdateOne(ctx, filterById, updatePost)
 	if err != nil {
-		return fmt.Errorf("fail to update the account error %v", err)
+		return fmt.Errorf("fail to update the post error %v", err)
 	}
 
 	if result.MatchedCount == 0 {
-		return fmt.Errorf("fail to find the account for update error %v", err)
+		return fmt.Errorf("fail to find the post for update error %v", err)
 	}
 
 	return nil
 }
 
-func (db *Db) Delete(ctx context.Context, id string) error {
-	//TODO implement me
-	panic("implement me")
+func (db *Db) Delete(ctx context.Context, hexId string) error {
+	oid, err := primitive.ObjectIDFromHex(hexId)
+	if err != nil {
+		return fmt.Errorf("fail to handle id error %v", err)
+	}
+
+	filterById := bson.M{
+		"_id": oid,
+	}
+
+	deleteResult, err := db.Collection.DeleteOne(ctx, filterById)
+	if err != nil {
+		return fmt.Errorf("fail to delete post error %v", err)
+	}
+	if deleteResult.DeletedCount == 0 {
+		return fmt.Errorf("no posts deleted")
+	}
+
+	return nil
 }
