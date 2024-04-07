@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
 	"message_service/internal"
 	"message_service/internal/storage"
 )
@@ -22,7 +23,9 @@ func NewStorage(database *mongo.Database, collection string) storage.Storage {
 }
 
 func (db *Db) Create(ctx context.Context, msg internal.MessageDto) (string, error) {
+	log.Println(fmt.Errorf("failed to create message error: %v"))
 	result, err := db.Collection.InsertOne(ctx, msg)
+	log.Println(fmt.Errorf("failed to create message error: %v", err))
 	if err != nil {
 		return "", fmt.Errorf("failed to create message error: %v", err)
 	}
@@ -30,6 +33,7 @@ func (db *Db) Create(ctx context.Context, msg internal.MessageDto) (string, erro
 	if ok {
 		return oid.Hex(), nil
 	}
+	log.Println(fmt.Errorf("failed to convert objectId to hex error: %v", err))
 	return "", fmt.Errorf("failed to convert objectId to hex error: %v", err)
 }
 

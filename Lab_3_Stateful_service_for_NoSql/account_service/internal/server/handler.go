@@ -4,17 +4,18 @@ import (
 	"account_service/internal"
 	"account_service/internal/util"
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func (s *AccountApiServer) getAccounts(w http.ResponseWriter, r *http.Request) error {
-	accounts, err := s.Storage.GetAll(*s.Ctx)
+	accounts, err := s.Storage.GetAccounts()
 	if err != nil {
-		return writeJson(w, http.StatusBadRequest, []internal.Account{})
+		return err
 	}
+	log.Println(accounts)
 	if len(accounts) == 0 {
 		return writeJson(w, http.StatusNoContent, []internal.Account{})
 	}
@@ -22,68 +23,113 @@ func (s *AccountApiServer) getAccounts(w http.ResponseWriter, r *http.Request) e
 }
 
 func (s *AccountApiServer) createAccount(w http.ResponseWriter, r *http.Request) error {
-	var accountDto internal.AccountDto
-	if err := json.NewDecoder(r.Body).Decode(&accountDto); err != nil {
-		return writeJson(w, http.StatusBadRequest, err)
+	var createAccountReq internal.CreateAccountRequest
+	if err := json.NewDecoder(r.Body).Decode(&createAccountReq); err != nil {
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode account data")
 	}
-
-	newPassword, err := util.HashPassword(accountDto.Password)
+	newPassword, err := util.HashPassword(createAccountReq.Password)
 	if err != nil {
-		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("cannot hash password error %v", err))
+		return err
 	}
-	accountDto.Password = newPassword
-
-	accountId, err := s.Storage.Create(*s.Ctx, accountDto)
+	createAccountReq.Password = newPassword
+	log.Println(createAccountReq)
+	accountId, err := s.Storage.CreateAccount(&createAccountReq)
 	if err != nil {
-		return writeJson(w, http.StatusBadRequest, err)
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot create account or already exists")
 	}
 	return writeJson(w, http.StatusOK, accountId)
 }
 
 func (s *AccountApiServer) getAccount(w http.ResponseWriter, r *http.Request) error {
 	id := mux.Vars(r)["id"]
-	account, err := s.Storage.GetById(*s.Ctx, id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	account, err := s.Storage.GetAccountById(idInt)
 	if err != nil {
 		log.Println(err)
-		return writeJson(w, http.StatusNoContent, "cannot find account")
+		return writeJson(w, http.StatusNotFound, "cannot find account")
+	}
+	if account == nil {
+		return writeJson(w, http.StatusNoContent, internal.Account{})
 	}
 	return writeJson(w, http.StatusOK, account)
 }
 
 func (s *AccountApiServer) updateAccount(w http.ResponseWriter, r *http.Request) error {
 	id := mux.Vars(r)["id"]
-	var modAccount internal.Account
-	err := json.NewDecoder(r.Body).Decode(&modAccount)
+	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("cannot decode input data error %v", err))
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode input data")
 	}
-	modAccount.Id = id
+	var modAccount internal.CreateAccountRequest
+	err = json.NewDecoder(r.Body).Decode(&modAccount)
+	if err != nil {
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode input data")
+	}
 
-	err = s.Storage.Update(*s.Ctx, modAccount)
+	existingAccount, err := s.Storage.GetAccountById(idInt)
 	if err != nil {
-		return writeJson(w, http.StatusNoContent, fmt.Sprintf("cannot find the account or update it error %v", err))
+		log.Println(err)
+		return writeJson(w, http.StatusNotFound, "cannot find the account or update it")
 	}
-	return writeJson(w, http.StatusOK, "account modified")
+
+	if util.DoPasswordsMatch(
+		existingAccount.Password,
+		modAccount.Password,
+	) {
+		log.Println("Password match found in update")
+		modAccount.Password = existingAccount.Password
+	} else {
+		modPassword, err := util.HashPassword(modAccount.Password)
+		if err != nil {
+			return err
+		}
+		modAccount.Password = modPassword
+	}
+	account := internal.AccountFrom(idInt, &modAccount)
+	accountModified, err := s.Storage.UpdateAccount(account)
+	if err != nil {
+		log.Println(err)
+		return writeJson(w, http.StatusNotFound, "cannot find the account or update it")
+	}
+	return writeJson(w, http.StatusOK, accountModified)
 }
 
 func (s *AccountApiServer) deleteAccount(w http.ResponseWriter, r *http.Request) error {
 	id := mux.Vars(r)["id"]
-	err := s.Storage.Delete(*s.Ctx, id)
+	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return writeJson(w, http.StatusNoContent, fmt.Sprintf("cannot find the account or delete it error %v", err))
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode input data")
 	}
-	return writeJson(w, http.StatusOK, "account deleted")
+	deletedId, err := s.Storage.DeleteAccount(idInt)
+	if err != nil {
+		log.Println(err)
+		return writeJson(w, http.StatusNotFound, "cannot find the account or delete it")
+	}
+	return writeJson(w, http.StatusOK, deletedId)
 }
 
 func (s *AccountApiServer) getAccountsByMask(w http.ResponseWriter, r *http.Request) error {
+	log.Println("MASK")
 	var searchAccount internal.AccountSearch
 	if err := json.NewDecoder(r.Body).Decode(&searchAccount); err != nil {
-		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("cannot decode account data error %v", err))
+		log.Println(err)
+		return writeJson(w, http.StatusBadRequest, "cannot decode account data")
 	}
-
-	accounts, err := s.Storage.GetByMask(*s.Ctx, searchAccount)
+	accounts, err := s.Storage.GetAccountsByMask(&searchAccount)
 	if err != nil {
-		return writeJson(w, http.StatusNoContent, fmt.Sprintf("cannot get accounts by mask error %v", err))
+		return err
+	}
+	log.Println(accounts)
+	if len(accounts) == 0 {
+		return writeJson(w, http.StatusNoContent, []internal.Account{})
 	}
 	return writeJson(w, http.StatusOK, accounts)
 }

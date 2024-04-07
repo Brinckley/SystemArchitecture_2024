@@ -1,29 +1,20 @@
 package main
 
 import (
+	"account_service/internal/repository/postgres"
 	"account_service/internal/server"
-	"account_service/internal/storage/mongo"
-	"context"
 	"log"
 	"os"
 )
 
 func main() {
-	ctx := context.Background()
-	host := os.Getenv("MONGO_HOST")
-	port := os.Getenv("MONGO_PORT")
-	username := os.Getenv("MONGO_USERNAME")
-	password := os.Getenv("MONGO_PASSWORD")
-	database := os.Getenv("MONGO_DB")
-	collectionName := os.Getenv("MONGO_COLLECTION")
-	appPort := os.Getenv("APP_PORT")
-	mongoDatabase, err := mongo.NewMongoClient(ctx, host, port, username, password, database)
+	envPort := os.Getenv("ACCOUNT_SERVICE_PORT")
+	accountTableName := os.Getenv("DB_ACCOUNT_TABLE_NAME")
+	postgresDb, err := postgres.NewPostgresStorage(accountTableName)
 	if err != nil {
-		log.Fatalf("unable to connect to mongo error %v", err)
+		log.Fatalf("unable to connect to postgres %s", err)
 	}
-	storage := mongo.NewStorage(mongoDatabase, collectionName)
-
-	log.Println("---------------CONNECTED TO MONGO FROM ACCOUNT SERVICE---------------")
-	apiServer := server.NewAccountApiServer(appPort, storage, &ctx)
+	log.Println("---------------CONNECTED TO POSTGRES FROM ACCOUNT SERVICE---------------")
+	apiServer := server.NewAccountApiServer(envPort, postgresDb)
 	apiServer.Run()
 }

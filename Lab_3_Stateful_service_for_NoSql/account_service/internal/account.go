@@ -1,23 +1,34 @@
 package internal
 
-type AccountDto struct {
-	Username  string `json:"username" bson:"username"`
-	Password  string `json:"password" bson:"password"`
-	FirstName string `json:"first_name" bson:"first_name"`
-	LastName  string `json:"last_name" bson:"last_name"`
-	Email     string `json:"email" bson:"email"`
+type CreateAccountRequest struct {
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
 }
 
 type Account struct {
-	Id        string `json:"id" bson:"_id,omitempty"`
-	Username  string `json:"username" bson:"username"`
-	Password  string `json:"password" bson:"password"`
-	FirstName string `json:"first_name" bson:"first_name"`
-	LastName  string `json:"last_name" bson:"last_name"`
-	Email     string `json:"email" bson:"email"`
+	Id        int    `json:"id"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
 }
 
 type AccountSearch struct {
-	FirstName string `json:"first_name" bson:"first_name"`
-	LastName  string `json:"last_name" bson:"last_name"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
+func AccountFrom(id int, request *CreateAccountRequest) *Account {
+	return &Account{
+		Id:        id,
+		Username:  request.Username,
+		Password:  request.Password,
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		Email:     request.Email,
+	}
 }
