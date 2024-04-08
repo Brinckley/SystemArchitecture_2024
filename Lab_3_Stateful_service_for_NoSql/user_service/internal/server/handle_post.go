@@ -2,19 +2,16 @@ package server
 
 import (
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"user_service/internal/util"
 )
 
 func (s *UserApiServer) createPost(responseWriter http.ResponseWriter, userReq *http.Request) error {
-	accountId := mux.Vars(userReq)["account_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/"+accountId)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Sending data for creation to the post service")
 	postResp, err := http.DefaultClient.Do(proxyReq)
 	if err != nil {
 		return err
@@ -30,7 +27,6 @@ func (s *UserApiServer) getPosts(responseWriter http.ResponseWriter, userReq *ht
 		return err
 	}
 
-	log.Println("Sending data for creation to the post service")
 	postResp, err := http.DefaultClient.Do(proxyReq)
 	if err != nil {
 		return err
@@ -40,14 +36,12 @@ func (s *UserApiServer) getPosts(responseWriter http.ResponseWriter, userReq *ht
 }
 
 func (s *UserApiServer) getPost(responseWriter http.ResponseWriter, userReq *http.Request) error {
-	accountId := mux.Vars(userReq)["account_id"]
 	postId := mux.Vars(userReq)["post_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/"+accountId+"/"+postId)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/account/"+postId)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Sending data for creation to the post service")
 	postResp, err := http.DefaultClient.Do(proxyReq)
 	if err != nil {
 		return err
@@ -57,14 +51,12 @@ func (s *UserApiServer) getPost(responseWriter http.ResponseWriter, userReq *htt
 }
 
 func (s *UserApiServer) updatePost(responseWriter http.ResponseWriter, userReq *http.Request) error {
-	accountId := mux.Vars(userReq)["account_id"]
 	postId := mux.Vars(userReq)["post_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/"+accountId+"/"+postId)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/account/"+postId)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Sending data for creation to the post service")
 	postResp, err := http.DefaultClient.Do(proxyReq)
 	if err != nil {
 		return err
@@ -74,14 +66,12 @@ func (s *UserApiServer) updatePost(responseWriter http.ResponseWriter, userReq *
 }
 
 func (s *UserApiServer) deletePost(responseWriter http.ResponseWriter, userReq *http.Request) error {
-	accountId := mux.Vars(userReq)["account_id"]
 	postId := mux.Vars(userReq)["post_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/"+accountId+"/"+postId)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/account/"+postId)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Sending data for creation to the post service")
 	postResp, err := http.DefaultClient.Do(proxyReq)
 	if err != nil {
 		return err

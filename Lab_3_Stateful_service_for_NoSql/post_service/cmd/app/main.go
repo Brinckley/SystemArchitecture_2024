@@ -16,7 +16,7 @@ func main() {
 	password := os.Getenv("MONGO_PASSWORD")
 	database := os.Getenv("MONGO_DB")
 	collectionName := os.Getenv("MONGO_COLLECTION")
-	appPort := os.Getenv("APP_PORT")
+	appPort := os.Getenv("POST_SERVICE_PORT")
 	mongoDatabase, err := mongo.NewMongoClient(ctx, host, port, username, password, database)
 	if err != nil {
 		log.Fatalf("unable to connect to mongo error %v", err)

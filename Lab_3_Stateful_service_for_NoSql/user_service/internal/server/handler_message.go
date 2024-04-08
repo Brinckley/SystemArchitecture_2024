@@ -2,19 +2,16 @@ package server
 
 import (
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"user_service/internal/util"
 )
 
 func (s *UserApiServer) createMessage(responseWriter http.ResponseWriter, userReq *http.Request) error {
-	accountId := mux.Vars(userReq)["account_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.MsgUrl+"/"+accountId)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.MsgUrl)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Sending data for creation to the message service")
 	postResp, err := http.DefaultClient.Do(proxyReq)
 	if err != nil {
 		return err
@@ -25,12 +22,11 @@ func (s *UserApiServer) createMessage(responseWriter http.ResponseWriter, userRe
 
 func (s *UserApiServer) getMessages(responseWriter http.ResponseWriter, userReq *http.Request) error {
 	accountId := mux.Vars(userReq)["account_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.MsgUrl+"/"+accountId)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.MsgUrl+"/account/"+accountId)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Sending data for creation to the message service")
 	postResp, err := http.DefaultClient.Do(proxyReq)
 	if err != nil {
 		return err
@@ -40,14 +36,12 @@ func (s *UserApiServer) getMessages(responseWriter http.ResponseWriter, userReq 
 }
 
 func (s *UserApiServer) getMessage(responseWriter http.ResponseWriter, userReq *http.Request) error {
-	accountId := mux.Vars(userReq)["account_id"]
-	msgId := mux.Vars(userReq)["msg_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/"+accountId+"/"+msgId)
+	messageId := mux.Vars(userReq)["message_id"]
+	proxyReq, err := util.CreateProxyRequest(userReq, s.MsgUrl+"/"+messageId)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Sending data for creation to the message service")
 	postResp, err := http.DefaultClient.Do(proxyReq)
 	if err != nil {
 		return err

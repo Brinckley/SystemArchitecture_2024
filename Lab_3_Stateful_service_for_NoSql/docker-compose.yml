@@ -59,9 +59,9 @@ services:
     depends_on:
       mongohealth:
         condition: service_healthy
-   # depends_on:
-   #   user_service:
-   #     condition: service_started
+    depends_on:
+      user_service:
+        condition: service_started
     networks:
       - sn-network
       
@@ -78,8 +78,10 @@ services:
       MONGO_DB: sndb
       MONGO_COLLECTION: posts
     depends_on:
-      user_service:
-        condition: service_started
+      mongohealth:
+        condition: service_healthy
+    user_service:
+      condition: service_started
     expose:
       - "8089"
     networks:

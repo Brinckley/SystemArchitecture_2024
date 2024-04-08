@@ -58,23 +58,15 @@ func (db *Db) GetById(ctx context.Context, hexId string) (post internal.Post, er
 }
 
 func (db *Db) GetByAccountId(ctx context.Context, hexId string) (posts []internal.Post, err error) {
-	oid, err := primitive.ObjectIDFromHex(hexId)
-	if err != nil {
-		return posts, fmt.Errorf("failed to convert id error %v", err)
+	filterReceiver := bson.D{{"account_id", hexId}}
+
+	found, _ := db.Collection.Find(ctx, filterReceiver)
+	if found.Err() != nil {
+		return posts, fmt.Errorf("fail to get all messages for user error %v", err)
 	}
 
-	filterByAccId := bson.D{{"account_id", oid}}
-
-	result, _ := db.Collection.Find(ctx, filterByAccId)
-	if result.Err() != nil {
-		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
-			return posts, fmt.Errorf("cannot find the document")
-		}
-		return posts, fmt.Errorf("cannot find post with account id %s in database err: %v", hexId, err)
-	}
-
-	if err := result.Decode(&posts); err != nil {
-		return posts, fmt.Errorf("cannot decode post from result error : %v", err)
+	if err = found.All(ctx, &posts); err != nil {
+		return posts, fmt.Errorf("fail to handle fetched data error %v", err)
 	}
 	return posts, nil
 }
