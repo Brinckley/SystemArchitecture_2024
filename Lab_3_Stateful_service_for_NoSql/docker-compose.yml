@@ -39,6 +39,8 @@ services:
     depends_on:
       user_service:
         condition: service_started
+      #postgres:
+      #  condition: service_healthy
     networks:
       - sn-network
 
@@ -59,7 +61,6 @@ services:
     depends_on:
       mongohealth:
         condition: service_healthy
-    depends_on:
       user_service:
         condition: service_started
     networks:
@@ -80,8 +81,8 @@ services:
     depends_on:
       mongohealth:
         condition: service_healthy
-    user_service:
-      condition: service_started
+      user_service:
+        condition: service_started
     expose:
       - "8089"
     networks:
