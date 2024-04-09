@@ -18,6 +18,12 @@ services:
       #  condition: service_healthy
       mongohealth:
         condition: service_healthy
+      message_service:
+        condition: service_started
+      post_service:
+        condition: service_started
+      account_service:
+        condition: service_started
     networks:
       - sn-network
 
@@ -131,6 +137,7 @@ services:
       - mongo1
       - mongo2
       - mongo3
+      - mongohealth
     networks:
       - sn-network
 
