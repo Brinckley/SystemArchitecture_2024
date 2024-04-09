@@ -50,10 +50,9 @@ services:
       context: ./message_service
     environment:
         MSG_SERVICE_PORT: 8088
-        MONGO_HOST: mongo1
-        MONGO_PORT: 27017
-        MONGO_USERNAME: msgpostservice
-        MONGO_PASSWORD: msgpostservice
+        MONGO_URI: mongodb://mongo1:27017,mongo2:27018,mongo3:27019/?replicaSet=rs0
+        MONGO_USERNAME: userTry
+        MONGO_PASSWORD: userTry
         MONGO_DB: sndb
         MONGO_COLLECTION: messages
     expose:
@@ -72,10 +71,9 @@ services:
       context: ./post_service
     environment:
       POST_SERVICE_PORT: 8089
-      MONGO_HOST: mongo1
-      MONGO_PORT: 27017
-      MONGO_USERNAME: msgpostservice
-      MONGO_PASSWORD: msgpostservice
+      MONGO_URI: mongodb://mongo1:27017,mongo2:27018,mongo3:27019/?replicaSet=rs0
+      MONGO_USERNAME: userTry
+      MONGO_PASSWORD: userTry
       MONGO_DB: sndb
       MONGO_COLLECTION: posts
     depends_on:
@@ -122,7 +120,6 @@ services:
     networks:
       - sn-network
     
-
   mongo-setup:
     container_name: mongo-setup
     image: mongo:5.0

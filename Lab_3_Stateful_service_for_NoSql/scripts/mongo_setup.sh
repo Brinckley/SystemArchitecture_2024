@@ -24,6 +24,28 @@ var cfg = {
   ]
 };
 rs.initiate(cfg);
-EOF
 
-mongosh --host mongo1:27017 --file scripts/load_content.js
+db = connect( 'mongodb://mongo1:27017,mongo2:27018,mongo3:27019/sndb?replicaSet=rs0' );
+
+db.createUser({
+    user: "userTry",
+    pwd: "userTry",
+    roles: [ { role: "readWrite", db: "sndb" } ]
+});
+db.getUsers();
+
+use sndb;
+
+db.messages.insertMany([{account_id: "11A45F0A", content: "junk1"},
+                       {account_id: "11A45F0B", content: "junk2"}]);
+
+db.messages.insertMany([{sender_id: "11A45F0D", receiver_id: "11A45F0A", content: "THE FIRST MSG"},
+                       {sender_id: "11A45F0A", receiver_id: "11A45F0D", content: "THE SECOND MSG"}]);
+
+db.getCollectionNames();
+
+db.posts.createIndex( { "account_id": 1 } );
+db.messages.createIndex( { "receiver_id": 1 } );
+db.posts.getIndexes();
+db.messages.getIndexes();
+EOF

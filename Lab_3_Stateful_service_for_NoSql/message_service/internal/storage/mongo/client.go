@@ -8,15 +8,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func NewMongoClient(ctx context.Context, host, port, username, password, database string) (*mongo.Database, error) {
-	mongoDbUri := fmt.Sprintf("mongodb://mongo1:27017,mongo2:27018,mongo3:27019/?replicaSet=rs0")
+func NewMongoClient(ctx context.Context, mongoUri, username, password, database string) (*mongo.Database, error) {
+	mongoDbUri := fmt.Sprintf(mongoUri)
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	clientOptions := options.Client().ApplyURI(mongoDbUri).SetServerAPIOptions(serverAPI)
-	//clientOptions.SetAuth(options.Credential{
-	//	AuthSource: database,
-	//	Username:   username,
-	//	Password:   password,
-	//})
+	clientOptions.SetAuth(options.Credential{
+		AuthSource: database,
+		Username:   username,
+		Password:   password,
+	})
 
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
