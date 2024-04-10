@@ -17,7 +17,7 @@ func (s *PostApiServer) createPost(w http.ResponseWriter, r *http.Request) error
 	if err != nil {
 		return writeJson(w, http.StatusNoContent, err)
 	}
-	return writeJson(w, http.StatusOK, postId)
+	return writeJson(w, http.StatusOK, fmt.Sprintf("Id of the created post %s", postId))
 }
 
 func (s *PostApiServer) getPost(w http.ResponseWriter, r *http.Request) error {

@@ -16,14 +16,14 @@ services:
     depends_on:
       #postgres:
       #  condition: service_healthy
-      mongohealth:
-        condition: service_healthy
-      message_service:
-        condition: service_started
-      post_service:
-        condition: service_started
-      account_service:
-        condition: service_started
+        mongohealth:
+          condition: service_healthy
+        message_service:
+          condition: service_started
+        post_service:
+          condition: service_started
+        account_service:
+          condition: service_started
     networks:
       - sn-network
 
@@ -42,11 +42,9 @@ services:
         DB_ACCOUNT_TABLE_NAME: 'account'
     expose:
       - "8087"
-    depends_on:
-      user_service:
-        condition: service_started
-      #postgres:
-      #  condition: service_healthy
+    #depends_on:
+    #   postgres:
+    #     condition: service_healthy
     networks:
       - sn-network
 
@@ -66,8 +64,6 @@ services:
     depends_on:
       mongohealth:
         condition: service_healthy
-      user_service:
-        condition: service_started
     networks:
       - sn-network
       
@@ -85,8 +81,6 @@ services:
     depends_on:
       mongohealth:
         condition: service_healthy
-      user_service:
-        condition: service_started
     expose:
       - "8089"
     networks:

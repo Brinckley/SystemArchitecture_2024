@@ -46,6 +46,10 @@ db.getCollectionNames();
 
 db.posts.createIndex( { "account_id": 1 } );
 db.messages.createIndex( { "receiver_id": 1 } );
+
 db.posts.getIndexes();
 db.messages.getIndexes();
 EOF
+
+mongoimport --username userTry --password userTry --host 'rs0/mongo1,mongo2,mongo3' --db sndb --collection posts --file ./scripts/generated_posts.json
+mongoimport --username userTry --password userTry --host 'rs0/mongo1,mongo2,mongo3' --db sndb --collection messages --file ./scripts/generated_msgs.json
