@@ -15,7 +15,7 @@ func writeJson(w http.ResponseWriter, status int, content any) error {
 
 func loggingMiddleWare(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("account service received request method: %s, header: %s, body: %s\n", r.Method, r.Header, r.Body)
+		log.Printf("account service received request method: %s\n", r.Method)
 		next.ServeHTTP(w, r)
 	})
 }
@@ -24,7 +24,6 @@ type apiFunc func(w http.ResponseWriter, r *http.Request) error
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.URL)
 		if err := f(w, r); err != nil {
 			log.Println(fmt.Errorf("unable to write data error : %s", err))
 			err := writeJson(w, http.StatusBadRequest, err)

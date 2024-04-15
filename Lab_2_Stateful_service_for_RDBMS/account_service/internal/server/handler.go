@@ -25,7 +25,6 @@ func (s *AccountApiServer) getAccounts(w http.ResponseWriter, r *http.Request) e
 func (s *AccountApiServer) createAccount(w http.ResponseWriter, r *http.Request) error {
 	var createAccountReq internal.CreateAccountRequest
 	if err := json.NewDecoder(r.Body).Decode(&createAccountReq); err != nil {
-		log.Println(err)
 		return writeJson(w, http.StatusBadRequest, "cannot decode account data")
 	}
 	newPassword, err := util.HashPassword(createAccountReq.Password)
@@ -36,7 +35,6 @@ func (s *AccountApiServer) createAccount(w http.ResponseWriter, r *http.Request)
 	log.Println(createAccountReq)
 	accountId, err := s.Storage.CreateAccount(&createAccountReq)
 	if err != nil {
-		log.Println(err)
 		return writeJson(w, http.StatusBadRequest, "cannot create account or already exists")
 	}
 	return writeJson(w, http.StatusOK, accountId)

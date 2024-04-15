@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"log"
 	"os"
 )
 
@@ -35,7 +34,6 @@ func NewPostgresStorage(table string) (*PostgresStorage, error) {
 func (p *PostgresStorage) CreateAccount(account *internal.CreateAccountRequest) (int, error) {
 	queryInsertAccount := fmt.Sprintf(
 		"insert into %s (username, password, first_name, last_name, email) values ($1, $2, $3, $4, $5) returning id;", p.tableName)
-	log.Println(queryInsertAccount)
 	var accountId int
 	err := p.db.QueryRow(queryInsertAccount, account.Username, account.Password, account.FirstName, account.LastName, account.Email).Scan(&accountId)
 	if err != nil {
@@ -46,7 +44,6 @@ func (p *PostgresStorage) CreateAccount(account *internal.CreateAccountRequest) 
 
 func (p *PostgresStorage) GetAccounts() ([]internal.Account, error) {
 	selectAllQuery := fmt.Sprintf("SELECT * FROM %s;", p.tableName)
-	log.Println(selectAllQuery)
 	rows, err := p.db.Query(selectAllQuery)
 	if err != nil {
 		return nil, err
@@ -103,7 +100,6 @@ func (p *PostgresStorage) DeleteAccount(id int) (int, error) {
 func (p *PostgresStorage) GetAccountsByMask(search *internal.AccountSearch) ([]internal.Account, error) {
 	likeQuery := fmt.Sprintf("SELECT * FROM %s WHERE first_name LIKE '%s' AND last_name LIKE '%s';",
 		p.tableName, search.FirstName, search.LastName)
-	log.Println(likeQuery)
 	rows, err := p.db.Query(likeQuery)
 	if err != nil {
 		return nil, err
