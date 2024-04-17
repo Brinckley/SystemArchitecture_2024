@@ -1,0 +1,428 @@
+openapi: '3.0.0'
+info:
+  version: '1.0.0'
+  title: 'Social Network API'
+  description: Perform operations for social network users about messages and posts
+servers:
+  - url: http://0.0.0.0:8080
+    description: Social network server
+
+paths:
+  /posts/{post_id}:
+    get:
+      summary: Get post by it's Id
+      parameters:
+      - name: post_id
+        description: unique post id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Post by given ID
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/post'
+        '204':
+            description: Posts not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: no data found by id
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'  
+    put:
+      summary: updating given post
+      parameters:
+      - name: post_id
+        description: unique post id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: account_id
+        description: account id
+        in: query
+        required: true
+        schema:
+          type: integer
+      - name: content
+        description: Content of the post
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Id of the created post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '204':
+            description: Posts not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: no data found by id
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: deleting the post
+      parameters:
+      - name: post_id
+        description: unique post id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Id of the created post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '204':
+            description: Posts not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: no data found by id
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /posts:
+    post:
+      summary: Create new post
+      parameters:
+        - name: account_id
+          description: account id
+          in: query
+          required: true
+          schema:
+           type: integer
+        - name: content
+          description: Content of the post
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+            description: Id of the created post
+            content:
+              application/json:
+                schema: 
+                  $ref: '#/components/schemas/postId'
+        '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '500':
+            description: Connection between microservices failed
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+  /posts/account/{account_id}:
+    get:
+      summary: get posts made by account
+      parameters:
+        - name: account_id
+          description: account id
+          in: path
+          required: true
+          schema:
+           type: integer
+      responses:
+        '200':
+            description: Posts created by the user
+            content:
+              application/json:
+                schema: 
+                  $ref: '#/components/schemas/posts'
+        '204':
+            description: Messages not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: no data found by id
+        '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '500':
+            description: Connection between microservices failed
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+  /messages:
+    post:
+      summary: create message
+      parameters:
+        - name: sender_id
+          description: sender account id
+          in: query
+          required: true
+          schema:
+           type: integer
+        - name: receiver_id
+          description: receiver account id
+          in: query
+          required: true
+          schema:
+           type: integer
+        - name: content
+          description: Content of the post
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+            description: id of the created message
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: the id of created message
+        '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '404':
+            description: Data error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '500':
+            description: Connection between microservices failed
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+  /messages/{message_id}:
+    get:
+      summary: get message by id
+      parameters:
+        - name: message_id
+          description: message id
+          in: path
+          required: true
+          schema:
+           type: integer
+      responses:
+        '200':
+            description: found message
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/message'
+        '204':
+            description: Messages not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: no data found by id
+        '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '500':
+            description: Connection between microservices failed
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+  /messages/account/{account_id}:
+    get:
+      summary: get messages to account with id
+      parameters:
+        - name: account_id
+          description: receiver's account id
+          in: path
+          required: true
+          schema:
+           type: integer
+      responses:
+        '200':
+            description: found messages
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/messages'
+        '204':
+            description: Messages not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: no data found by id
+        '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+        '500':
+            description: Connection between microservices failed
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    accountId:
+      description: Account unique ID
+      type: integer
+    postId:
+      description: Post unique ID
+      type: integer
+    messageId:
+      description: Message unique ID
+      type: integer
+    accounts:
+      type: array
+      items:
+        $ref: '#/components/schemas/account'
+    posts:
+      type: array
+      items:
+        $ref: '#/components/schemas/post'
+    messages:
+      type: array
+      items:
+        $ref: '#/components/schemas/message'
+    account:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        password:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+    message:
+      type: object
+      properties:
+        id:
+          type: integer
+        sender_id:
+          type: integer
+        receiver_id:
+          type: integer
+        content:
+          type: string
+    post:
+      type: object
+      properties:
+        id:
+          type: integer
+        account_id:
+          type: integer
+        content:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          description: Error description
+          type: string
+  securitySchemes:
+      basicAuth:     
+        type: http
+        scheme: basic
+security:
+  - basicAuth: []

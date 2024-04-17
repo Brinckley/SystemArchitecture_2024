@@ -1,0 +1,70 @@
+version: '3.7'
+
+services:
+
+  user_service:
+    container_name: user_service
+    build:
+      context: ./user_service
+    ports:
+      - 8080:8080
+    environment:
+        USER_SERVICE_PORT: 8080
+        ACCOUNT_SERVICE_URL: 'http://account_service:8087'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      account_service:
+        condition: service_started
+    networks:
+      - sn-network
+
+  account_service:
+    container_name: account_service
+    build:
+      context: ./account_service
+    environment:
+        ACCOUNT_SERVICE_PORT: 8087
+        DB_HOST: 'postgres'
+        DB_PORT: 5432
+        DB_USER: 'admin'
+        DB_PASSWORD: 'admin'
+        DB_NAME: 'sndb'
+        DB_SCHEMA: 'social_network'
+        DB_ACCOUNT_TABLE_NAME: 'account'
+    expose:
+      - "8087"
+    depends_on:
+       postgres:
+         condition: service_healthy
+    networks:
+      - sn-network
+
+  postgres:
+    image: postgres:15
+    environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: admin
+        POSTGRES_DB: sndb
+        PGDATA: '/data/postgres'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/user_db_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - sn-network
+
+networks:
+  sn-network:
+    driver: "bridge"
+
+volumes:
+  pgdata:
+  mongodata:
