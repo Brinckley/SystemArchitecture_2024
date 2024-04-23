@@ -19,13 +19,13 @@ func (p *Storage) SignUpAccount(account internal.SignUpAccount) (accountId int, 
 	return accountId, nil
 }
 
-func (p *Storage) GetPasswordByUsername(username string) (password string, err error) {
-	getPasswordQuery := fmt.Sprintf("SELECT password FROM %s WHERE username=$1;", p.tableName)
-	err = p.db.QueryRow(getPasswordQuery, username).Scan(&password)
+func (p *Storage) GetPasswordByUsername(username string) (id int, password string, err error) {
+	getPasswordQuery := fmt.Sprintf("SELECT id, password FROM %s WHERE username=$1;", p.tableName)
+	err = p.db.QueryRow(getPasswordQuery, username).Scan(&id, &password)
 	if err != nil {
-		return "", err
+		return -1, "", err
 	}
-	return password, nil
+	return id, password, nil
 }
 
 func (p *Storage) GetAllAccounts() (accounts []internal.Account, err error) {

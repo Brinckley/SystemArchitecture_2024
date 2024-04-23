@@ -147,12 +147,12 @@ services:
     restart: on-failure
     volumes:
       - ./scripts:/scripts
-    entrypoint: [ "/scripts/mongo_setup.sh" ]
     depends_on:
       - mongo1
       - mongo2
       - mongo3
       - mongohealth
+    entrypoint: [ "bash", "/scripts/mongo_setup.sh"]
     networks:
       - sn-network
 

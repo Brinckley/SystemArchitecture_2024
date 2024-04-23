@@ -48,21 +48,30 @@ func (s *AccountApiServer) signUpAccount(w http.ResponseWriter, r *http.Request)
 	return middleware.WriteJson(w, http.StatusOK, accountId)
 }
 
+type tokenCustomClaims struct {
+	jwt.StandardClaims
+	UserId string `json:"user_id"`
+}
+
 func (s *AccountApiServer) signInAccount(w http.ResponseWriter, r *http.Request) *response_error.Error {
 	var signUpAccount internal.SignInAccount
 	if err := json.NewDecoder(r.Body).Decode(&signUpAccount); err != nil {
 		return response_error.New(err, http.StatusBadRequest, ERR_DECODE_DATA)
 	}
-	passwordByUsername, err := s.Storage.GetPasswordByUsername(signUpAccount.Username)
+	userId, passwordByUsername, err := s.Storage.GetPasswordByUsername(signUpAccount.Username)
 	if err != nil {
 		return response_error.New(err, http.StatusBadRequest, ERR_SIGN_IN_USERNAME)
 	}
 
 	if util.DoPasswordsMatch(passwordByUsername, signUpAccount.Password) {
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(6 * time.Hour).Unix(),
-			IssuedAt:  time.Now().Unix(),
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenCustomClaims{
+			StandardClaims: jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(6 * time.Hour).Unix(),
+				IssuedAt:  time.Now().Unix(),
+			},
+			UserId: strconv.Itoa(userId),
 		})
+
 		signedString, err := token.SignedString([]byte(signingKey))
 		if err != nil {
 			return response_error.New(err, http.StatusInternalServerError, ERR_SIGN_IN_PASSWORD)

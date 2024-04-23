@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"user_service/internal/server/response_error"
 )
@@ -64,7 +63,7 @@ type apiAuthorizedFunc func(w http.ResponseWriter, r *http.Request, accountId st
 
 type tokenClaims struct {
 	jwt.StandardClaims
-	UserId int `json:"user_id"`
+	UserId string `json:"user_id"`
 }
 
 func MakeHTTPAuthedHandleFunc(f apiAuthorizedFunc) http.HandlerFunc {
@@ -93,7 +92,7 @@ func MakeHTTPAuthedHandleFunc(f apiAuthorizedFunc) http.HandlerFunc {
 			err = WriteJson(w, http.StatusUnauthorized, ERR_WRONG_TOKEN_FORMAT)
 		}
 
-		if err := f(w, r, strconv.Itoa(claims.UserId)); err != nil {
+		if err := f(w, r, claims.UserId); err != nil {
 			err := WriteJson(w, err.StatusCode(), err.Unwrap())
 			if err != nil {
 				log.Println(fmt.Errorf("unable to write error data error : %s", err))
