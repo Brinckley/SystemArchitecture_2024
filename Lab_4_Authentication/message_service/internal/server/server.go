@@ -25,10 +25,10 @@ func (s *MessageApiServer) Run() {
 	router := mux.NewRouter()
 	router.Use(loggingMiddleWare)
 
-	// getting message by its id
-	router.HandleFunc("/{message_id}", makeHTTPHandleFunc(s.getMessagesById)).Methods(http.MethodGet)
 	// creating new message
-	router.HandleFunc("/", makeHTTPHandleFunc(s.createMessage)).Methods(http.MethodPost)
+	router.HandleFunc("/{account_id}", makeHTTPHandleFunc(s.createMessage)).Methods(http.MethodPost)
+	// getting message by its id
+	router.HandleFunc("/{account_id}/msg/{message_id}", makeHTTPHandleFunc(s.getMessagesById)).Methods(http.MethodGet)
 	// getting message that the user with accountId has received
 	router.HandleFunc("/account/{account_id}", makeHTTPHandleFunc(s.getMessageByDestId)).Methods(http.MethodGet)
 

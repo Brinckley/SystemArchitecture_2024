@@ -27,24 +27,26 @@ func (s *UserApiServer) Run() error {
 	router.Use(middleware.LoggingMiddleWare)
 
 	router.HandleFunc("/signup", middleware.MakeHTTPHandleFunc(s.signUpAccount)).Methods(http.MethodPost)
-	router.HandleFunc("/signup", middleware.MakeHTTPHandleFunc(s.signInAccount)).Methods(http.MethodGet)
+	router.HandleFunc("/signin", middleware.MakeHTTPHandleFunc(s.signInAccount)).Methods(http.MethodGet)
 
 	router.HandleFunc("/account", middleware.MakeHTTPHandleFunc(s.getAccounts)).Methods(http.MethodGet)
 	router.HandleFunc("/account/search", middleware.MakeHTTPHandleFunc(s.getAccountsByMask)).Methods(http.MethodGet)
 
 	router.HandleFunc("/account/{account_id}", middleware.MakeHTTPHandleFunc(s.getAccount)).Methods(http.MethodGet)
-	router.HandleFunc("/account/{account_id}", middleware.MakeHTTPHandleFunc(s.updateAccount)).Methods(http.MethodPut)
-	router.HandleFunc("/account/{account_id}", middleware.MakeHTTPHandleFunc(s.deleteAccount)).Methods(http.MethodDelete)
 
-	router.HandleFunc("/messages/{message_id}", middleware.MakeHTTPHandleFunc(s.getMessage)).Methods(http.MethodGet)
-	router.HandleFunc("/messages", middleware.MakeHTTPHandleFunc(s.createMessage)).Methods(http.MethodPost)
-	router.HandleFunc("/messages/account/{account_id}", middleware.MakeHTTPHandleFunc(s.getMessages)).Methods(http.MethodGet)
+	router.HandleFunc("/account", middleware.MakeHTTPAuthedHandleFunc(s.updateAccount)).Methods(http.MethodPut)
+	router.HandleFunc("/account", middleware.MakeHTTPAuthedHandleFunc(s.deleteAccount)).Methods(http.MethodDelete)
 
-	router.HandleFunc("/posts", middleware.MakeHTTPHandleFunc(s.createPost)).Methods(http.MethodPost)
+	router.HandleFunc("/messages/msg/{message_id}", middleware.MakeHTTPAuthedHandleFunc(s.getMessage)).Methods(http.MethodGet)
+	router.HandleFunc("/messages/account", middleware.MakeHTTPAuthedHandleFunc(s.getMessages)).Methods(http.MethodGet)
+	router.HandleFunc("/messages", middleware.MakeHTTPAuthedHandleFunc(s.createMessage)).Methods(http.MethodPost)
+
 	router.HandleFunc("/posts/account/{account_id}", middleware.MakeHTTPHandleFunc(s.getPosts)).Methods(http.MethodGet)
 	router.HandleFunc("/posts/{post_id}", middleware.MakeHTTPHandleFunc(s.getPost)).Methods(http.MethodGet)
-	router.HandleFunc("/posts/{post_id}", middleware.MakeHTTPHandleFunc(s.updatePost)).Methods(http.MethodPut)
-	router.HandleFunc("/posts/{post_id}", middleware.MakeHTTPHandleFunc(s.deletePost)).Methods(http.MethodDelete)
+
+	router.HandleFunc("/posts", middleware.MakeHTTPAuthedHandleFunc(s.createPost)).Methods(http.MethodPost)
+	router.HandleFunc("/posts/{post_id}", middleware.MakeHTTPAuthedHandleFunc(s.updatePost)).Methods(http.MethodPut)
+	router.HandleFunc("/posts/{post_id}", middleware.MakeHTTPAuthedHandleFunc(s.deletePost)).Methods(http.MethodDelete)
 
 	err := http.ListenAndServe(":"+s.UserPort, router)
 	if err != nil {

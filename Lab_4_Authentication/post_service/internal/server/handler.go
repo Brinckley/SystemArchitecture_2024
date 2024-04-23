@@ -9,10 +9,12 @@ import (
 )
 
 func (s *PostApiServer) createPost(w http.ResponseWriter, r *http.Request) error {
+	accountId := mux.Vars(r)["account_id"]
 	var createPostReq internal.PostDto
 	if err := json.NewDecoder(r.Body).Decode(&createPostReq); err != nil {
 		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("fail to handle data error %v", err))
 	}
+	createPostReq.AccountId = accountId
 	postId, err := s.Storage.Create(*s.Context, createPostReq)
 	if err != nil {
 		return writeJson(w, http.StatusNoContent, err)
@@ -39,12 +41,14 @@ func (s *PostApiServer) getPostsByAccId(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *PostApiServer) updatePost(w http.ResponseWriter, r *http.Request) error {
+	accountId := mux.Vars(r)["account_id"]
 	postId := mux.Vars(r)["post_id"]
 	var updatePostReq internal.Post
 	if err := json.NewDecoder(r.Body).Decode(&updatePostReq); err != nil {
 		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("fail to handle data error %v", err))
 	}
 	updatePostReq.Id = postId
+	updatePostReq.AccountId = accountId
 	err := s.Storage.Update(*s.Context, updatePostReq)
 	if err != nil {
 		return writeJson(w, http.StatusBadRequest, err)
@@ -53,8 +57,9 @@ func (s *PostApiServer) updatePost(w http.ResponseWriter, r *http.Request) error
 }
 
 func (s *PostApiServer) deletePost(w http.ResponseWriter, r *http.Request) error {
+	accountId := mux.Vars(r)["account_id"]
 	postId := mux.Vars(r)["post_id"]
-	err := s.Storage.Delete(*s.Context, postId)
+	err := s.Storage.Delete(*s.Context, accountId, postId)
 	if err != nil {
 		return writeJson(w, http.StatusBadRequest, err)
 	}

@@ -7,6 +7,6 @@ import (
 
 type Storage interface {
 	Create(ctx context.Context, msg internal.MessageDto) (string, error)
-	GetById(ctx context.Context, id string) (internal.Message, error)
+	GetById(ctx context.Context, accountId, messageId string) (internal.Message, error)
 	GetByDestId(ctx context.Context, id string) ([]internal.Message, error)
 }

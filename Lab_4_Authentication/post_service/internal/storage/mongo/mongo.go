@@ -108,7 +108,7 @@ func (db *Db) Update(ctx context.Context, post internal.Post) error {
 	return nil
 }
 
-func (db *Db) Delete(ctx context.Context, hexId string) error {
+func (db *Db) Delete(ctx context.Context, accountId, hexId string) error {
 	oid, err := primitive.ObjectIDFromHex(hexId)
 	if err != nil {
 		return fmt.Errorf("fail to handle id error %v", err)

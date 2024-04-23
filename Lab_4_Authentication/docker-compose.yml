@@ -11,10 +11,18 @@ services:
     environment:
         USER_SERVICE_PORT: 8080
         ACCOUNT_SERVICE_URL: 'http://account_service:8087'
+        MSG_SERVICE_URL: 'http://message_service:8088'
+        POST_SERVICE_URL: 'http://post_service:8089'
     depends_on:
       postgres:
         condition: service_healthy
       account_service:
+        condition: service_started
+      mongohealth:
+        condition: service_healthy
+      message_service:
+        condition: service_started
+      post_service:
         condition: service_started
     networks:
       - sn-network
@@ -58,6 +66,100 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - sn-network
+
+  message_service:
+    container_name: message_service
+    build:
+      context: ./message_service
+    environment:
+        MSG_SERVICE_PORT: 8088
+        MONGO_URI: mongodb://mongo1:27017,mongo2:27018,mongo3:27019/?replicaSet=rs0
+        MONGO_USERNAME: userTry
+        MONGO_PASSWORD: userTry
+        MONGO_DB: sndb
+        MONGO_COLLECTION: messages
+    expose:
+      - "8088"
+    depends_on:
+      mongohealth:
+        condition: service_healthy
+    networks:
+      - sn-network
+
+  post_service:
+    container_name: post_service
+    build:
+      context: ./post_service
+    environment:
+      POST_SERVICE_PORT: 8089
+      MONGO_URI: mongodb://mongo1:27017,mongo2:27018,mongo3:27019/?replicaSet=rs0
+      MONGO_USERNAME: userTry
+      MONGO_PASSWORD: userTry
+      MONGO_DB: sndb
+      MONGO_COLLECTION: posts
+    depends_on:
+      mongohealth:
+        condition: service_healthy
+    expose:
+      - "8089"
+    networks:
+      - sn-network
+
+  mongo1:
+    image: mongo:5.0
+    hostname: mongo1
+    container_name: mongo1
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    entrypoint: ["mongod", "--replSet", "rs0", "--bind_ip", "localhost,mongo1"]
+    networks:
+      - sn-network
+  mongo2:
+    image: mongo:5.0
+    hostname: mongo2
+    container_name: mongo2
+    expose:
+      - 27017
+    ports:
+      - 27018:27017
+    entrypoint: ["mongod", "--replSet", "rs0", "--bind_ip", "localhost,mongo2"]
+    networks:
+      - sn-network
+  mongo3:
+    image: mongo:5.0
+    hostname: mongo3
+    container_name: mongo3
+    expose:
+      - 27017
+    ports:
+      - 27019:27017
+    entrypoint: ["mongod", "--replSet", "rs0", "--bind_ip", "localhost,mongo3"]
+    networks:
+      - sn-network
+    
+  mongo-setup:
+    container_name: mongo-setup
+    image: mongo:5.0
+    restart: on-failure
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: [ "/scripts/mongo_setup.sh" ]
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+      - mongohealth
+    networks:
+      - sn-network
+
+  mongohealth:
+    image: mongo:5.0
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
     networks:
       - sn-network
 

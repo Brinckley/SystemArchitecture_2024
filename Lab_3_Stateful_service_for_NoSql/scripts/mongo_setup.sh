@@ -51,5 +51,5 @@ db.posts.getIndexes();
 db.messages.getIndexes();
 EOF
 
-mongoimport --username userTry --password userTry --host 'rs0/mongo1,mongo2,mongo3' --db sndb --collection posts --file ./scripts/generated_posts.json
-mongoimport --username userTry --password userTry --host 'rs0/mongo1,mongo2,mongo3' --db sndb --collection messages --file ./scripts/generated_msgs.json
+mongoimport --username userTry --password userTry --host 'rs0/mongo1,mongo2,mongo3' --db sndb --collection posts --file generated_posts.json
+mongoimport --username userTry --password userTry --host 'rs0/mongo1,mongo2,mongo3' --db sndb --collection messages --file generated_msgs.json

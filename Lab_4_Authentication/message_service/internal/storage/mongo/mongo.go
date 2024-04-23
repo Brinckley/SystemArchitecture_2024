@@ -33,14 +33,15 @@ func (db *Db) Create(ctx context.Context, msg internal.MessageDto) (string, erro
 	return "", fmt.Errorf("failed to convert objectId to hex error: %v", err)
 }
 
-func (db *Db) GetById(ctx context.Context, hexId string) (message internal.Message, err error) {
-	oid, err := primitive.ObjectIDFromHex(hexId)
+func (db *Db) GetById(ctx context.Context, userId, hexMsgId string) (message internal.Message, err error) {
+	oid, err := primitive.ObjectIDFromHex(hexMsgId)
 	if err != nil {
 		return message, fmt.Errorf("cannot handle message id error %v", err)
 	}
 
 	filterById := bson.M{
-		"_id": oid,
+		"_id":         oid,
+		"receiver_id": userId,
 	}
 
 	result := db.Collection.FindOne(ctx, filterById)
@@ -48,7 +49,7 @@ func (db *Db) GetById(ctx context.Context, hexId string) (message internal.Messa
 		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
 			return message, fmt.Errorf("cannot find the document")
 		}
-		return message, fmt.Errorf("cannot find message with id %s in database err: %v", hexId, err)
+		return message, fmt.Errorf("cannot find message with id %s in database err: %v", hexMsgId, err)
 	}
 
 	if err := result.Decode(&message); err != nil {

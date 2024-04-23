@@ -13,8 +13,8 @@ const (
 	UNABLE_TO_CREATE_POSTS_PROXY_REQ = "unable to create proxy request for posts"
 )
 
-func (s *UserApiServer) createPost(responseWriter http.ResponseWriter, userReq *http.Request) *response_error.Error {
-	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl)
+func (s *UserApiServer) createPost(responseWriter http.ResponseWriter, userReq *http.Request, accountId string) *response_error.Error {
+	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/account/"+accountId)
 	if err != nil {
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_CREATE_POSTS_PROXY_REQ)
 	}
@@ -57,9 +57,9 @@ func (s *UserApiServer) getPost(responseWriter http.ResponseWriter, userReq *htt
 	return middleware.WriteJsonFromResponse(responseWriter, postResp.StatusCode, postResp)
 }
 
-func (s *UserApiServer) updatePost(responseWriter http.ResponseWriter, userReq *http.Request) *response_error.Error {
+func (s *UserApiServer) updatePost(responseWriter http.ResponseWriter, userReq *http.Request, accountId string) *response_error.Error {
 	postId := mux.Vars(userReq)["post_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/account/"+postId)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/account/"+accountId+"/posts/"+postId)
 	if err != nil {
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_CREATE_POSTS_PROXY_REQ)
 	}
@@ -72,9 +72,9 @@ func (s *UserApiServer) updatePost(responseWriter http.ResponseWriter, userReq *
 	return middleware.WriteJsonFromResponse(responseWriter, postResp.StatusCode, postResp)
 }
 
-func (s *UserApiServer) deletePost(responseWriter http.ResponseWriter, userReq *http.Request) *response_error.Error {
+func (s *UserApiServer) deletePost(responseWriter http.ResponseWriter, userReq *http.Request, accountId string) *response_error.Error {
 	postId := mux.Vars(userReq)["post_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/account/"+postId)
+	proxyReq, err := util.CreateProxyRequest(userReq, s.PostUrl+"/account/"+accountId+"/posts/"+postId)
 	if err != nil {
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_CREATE_POSTS_PROXY_REQ)
 	}
