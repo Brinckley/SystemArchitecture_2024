@@ -22,8 +22,8 @@ services:
           condition: service_started
         post_service:
           condition: service_started
-       # account_service:
-       #   condition: service_started
+        account_service:
+          condition: service_started
     networks:
       - sn-network
 
