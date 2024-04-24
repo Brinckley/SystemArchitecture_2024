@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"log"
 	"message_service/internal"
 	"net/http"
 )
@@ -13,7 +12,6 @@ func (s *MessageApiServer) createMessage(w http.ResponseWriter, r *http.Request)
 	accountId := mux.Vars(r)["account_id"]
 	var msgDto internal.MessageDto
 	if err := json.NewDecoder(r.Body).Decode(&msgDto); err != nil {
-		log.Println("can't decode")
 		return writeJson(w, http.StatusBadRequest, fmt.Errorf("fail to handle request body error %v", err))
 	}
 	msgDto.SenderId = accountId

@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
 	"post_service/internal"
 	"post_service/internal/storage"
 )
@@ -28,6 +29,7 @@ func (db *Db) Create(ctx context.Context, postDto internal.PostDto) (string, err
 	}
 	oid, ok := result.InsertedID.(primitive.ObjectID)
 	if ok {
+		log.Printf("INSERTED ID %v", oid)
 		return oid.Hex(), nil
 	}
 	return "", fmt.Errorf("failed to convert objectId to hex error: %v", err)

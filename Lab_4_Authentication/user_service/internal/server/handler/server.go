@@ -31,13 +31,11 @@ func (s *UserApiServer) Run() error {
 	router.HandleFunc("/signin", middleware.MakeHTTPHandleFunc(s.signInAccount)).Methods(http.MethodGet)
 
 	// no need auth block
-	router.HandleFunc("/account", middleware.MakeHTTPHandleFunc(s.getAccounts)).Methods(http.MethodGet)
+	router.HandleFunc("/accounts", middleware.MakeHTTPHandleFunc(s.getAccounts)).Methods(http.MethodGet)
 	router.HandleFunc("/account/search", middleware.MakeHTTPHandleFunc(s.getAccountsByMask)).Methods(http.MethodGet)
 
-	// no need auth block
-	router.HandleFunc("/account/{account_id}", middleware.MakeHTTPHandleFunc(s.getAccount)).Methods(http.MethodGet)
-
 	// need auth block
+	router.HandleFunc("/account", middleware.MakeHTTPAuthedHandleFunc(s.getAccount)).Methods(http.MethodGet)
 	router.HandleFunc("/account", middleware.MakeHTTPAuthedHandleFunc(s.updateAccount)).Methods(http.MethodPut)
 	router.HandleFunc("/account", middleware.MakeHTTPAuthedHandleFunc(s.deleteAccount)).Methods(http.MethodDelete)
 

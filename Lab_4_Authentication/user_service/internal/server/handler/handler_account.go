@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
 	"user_service/internal/server/middleware"
 	"user_service/internal/server/response_error"
@@ -26,9 +25,8 @@ func (s *UserApiServer) getAccounts(responseWriter http.ResponseWriter, userReq 
 	return middleware.WriteJsonFromResponse(responseWriter, accountResp.StatusCode, accountResp)
 }
 
-func (s *UserApiServer) getAccount(responseWriter http.ResponseWriter, userReq *http.Request) *response_error.Error {
-	id := mux.Vars(userReq)["account_id"]
-	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/accounts/"+id)
+func (s *UserApiServer) getAccount(responseWriter http.ResponseWriter, userReq *http.Request, accountId string) *response_error.Error {
+	proxyReq, err := util.CreateProxyRequest(userReq, s.AccountUrl+"/accounts/"+accountId)
 	if err != nil {
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_CREATE_ACCOUNT_PROXY_REQ)
 	}

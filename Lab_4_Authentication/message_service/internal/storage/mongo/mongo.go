@@ -39,15 +39,26 @@ func (db *Db) GetById(ctx context.Context, userId, hexMsgId string) (message int
 		return message, fmt.Errorf("cannot handle message id error %v", err)
 	}
 
-	filterById := bson.M{
+	filterByIdReceiverById := bson.M{
 		"_id":         oid,
 		"receiver_id": userId,
 	}
 
-	result := db.Collection.FindOne(ctx, filterById)
+	result := db.Collection.FindOne(ctx, filterByIdReceiverById)
 	if result.Err() != nil {
 		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
-			return message, fmt.Errorf("cannot find the document")
+			filterByIdSenderById := bson.M{
+				"_id":       oid,
+				"sender_id": userId,
+			}
+			result = db.Collection.FindOne(ctx, filterByIdSenderById)
+			if result.Err() != nil {
+				return message, fmt.Errorf("failed to find message by id error %v", err)
+			}
+			if err := result.Decode(&message); err != nil {
+				return message, fmt.Errorf("cannot decode user from result error : %v", err)
+			}
+			return message, nil
 		}
 		return message, fmt.Errorf("cannot find message with id %s in database err: %v", hexMsgId, err)
 	}

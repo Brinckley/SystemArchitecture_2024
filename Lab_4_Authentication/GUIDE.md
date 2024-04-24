@@ -1,42 +1,63 @@
 ## Описание
-В данной лабороторной представлены два новых (обновленных) сервиса: `message_service` и `post_service` необходимых для взаимодействия с сообщениями и постами соответственно.   
-В `docker-compose.yaml` файл была добавлена конфигурация MondoDb. Файл инициализации лежит в папке `scripts`. В нем настраивается репликация, добавляются база данных и коллекции, индексы.  
+В данной лабороторной приложение `user_service` отвечает за работу с пользователями и распределяет запросы по другим микросервисам.  
+Генерация JWT токенов происходит в сервисе `account_service`. Там написана логика работы signin/signup. Signup просто добавляет пользователя в базу, а signin выдает токен, который возращается пользователю на фронт. Там его можно вставить в поле Bearer token для получения доступа к командам, выполнение которых требует авторизации.  
+Сама авторизация в `user_service` проверяется в виде декоратора. Из токена вытаскивается user_id, который затем отправляется в соответствующий сервис `account_service`, `message_service` или `post_service`. 
 
-## Файлы для заполнения
-Программа `insert_maker` на языке Python генерирует заданное значение постов и сообщений в формате `.json`. Сгенерированные файлы необходимо поместить в папку `scripts`. Оттуда они будут взяты из скрипта `mongo_setup.sh`, и данные оттуда будут занесены в базу. Предвратительно уже сгенерированы файлы по 80 000 сущностей сообщений и столько же постов. Id пользователей не привязаны к реальным. Это сгенерированные заглушки, которые в полностью рабочем сервисе берутся из Postgres. Заполнение осуществляется через `mongoimport`.   
+## Эндпоинты
+Требующие авторизации действия:
+ - /account - Get/Put/Delete запросы к аккаунту (id берется из токена)
+ - /messages/msg/{message_id} - Get получить доступ может только получатель или отправитель
+ - /messages/account - Get получить все сообщения для пользователя (id указано как receiver)
+ - /messages - Post пользователь отправляет сообщение
+ - /posts - Post сделать пост может только авторизованный пользователь
+ - /posts/{post_id} - Put/Delete может сделать только авторизированный пользователь, обладатель поста  
+   
+Не требующие авторизации действия:
+ - /accounts - Get получить список имеющихся аккаунтов
+ - /account/search - Get поиск по маске
+ - /posts/account/{account_id} - Get посмотреть посты аккаунта
+ - /posts/{post_id} - Get посмотреть пост по его id 
 
 ## Запуск
-Изначально нужно запустить два контейнера: `mongo-setup`. Он нужен для запуска всех нод mongo и сервиса-healthcheck.  
+В docker-compose.yaml представлены все необходимые сервисы. 
+Сначала нужно собрать mongo, для этого запускаем mongo-setup. И ждем, пока контейнер запустится и завершится с кодом 0. Это будет означать, что все реплики подняты и скрипт с инициализацией кластера сработал.
 ```
-docker-compose mongo-setup up -d
+docker-compose up mongo-setup
 ```
-После того, как Mongo поднялась, можно запускать сервисы. В следующей последовательности:   
+Теперь поднимаем CУБД. Она будет работать в фоне.
 ```
-docker-compose user_service up -d
+docker-compose up -d postgres
 ```
-Этими командами поднялись сервисы, отвечающие за сообщения и посты, а также главный сервис для распределения запросов от пользователя.  
-В данной версии отсутствует взаимодействие с Postgres, но данные функции можно добавить, подняв базу и `account_service`. Для этого нужно раскомментировать строчки в зависимостях depends_on в `user_service` и `account_service`. Тогда можно заново запустить  user_service следующей командой и поднимется еще и СУБД.    
+Последний шаг - запуск user_service, который подтянет все остальные сервисы.
 ```
-docker-compose user_service up -d
+docker-compose up user_service
 ```
-
+Теперь можно использовать сервис. Примеры предложены далее.
 ## Тестирование
 Для скринов использовался postman. Более подробно об эндпоинтах можно посмотреть в `index.yaml`.
-Добавление нового сообщения  
-![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_3_Stateful_service_for_NoSql/imgs/il1.jpg)
 
-Получение сообщения по его id  
-![get msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_3_Stateful_service_for_NoSql/imgs/il2.jpg)
+SignUp
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il1.png)
 
-Получение сообщений для аккаунта с заданным id  
-![get msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_3_Stateful_service_for_NoSql/imgs/il3.jpg)
+SignIn
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il2.png)
 
-Добавление нового поста  
-![add post](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_3_Stateful_service_for_NoSql/imgs/il4.jpg)
+Getting accounts without auth
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il12.png)
 
-Получение/удаление поста по id 
-![get post](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_3_Stateful_service_for_NoSql/imgs/il5.jpg) 
-![delete post](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_3_Stateful_service_for_NoSql/imgs/il6.jpg)
+Message sending with Auth
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il3.png)
 
-Получение постов по id аккаунта 
-![get post](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_3_Stateful_service_for_NoSql/imgs/il7.jpg) 
+Getting message by Id with auth + examples with wrong auth
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il4.png)
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il5.png)
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il6.png)
+
+Getting all received messages
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il7.png)
+
+Manipulations with posts and auth
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il8.png)
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il9.png)
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il10.png)
+![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_4_Authentication/imgs/il11.png)

@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"post_service/internal"
 )
 
 func (s *PostApiServer) createPost(w http.ResponseWriter, r *http.Request) error {
+	log.Printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 	accountId := mux.Vars(r)["account_id"]
 	var createPostReq internal.PostDto
 	if err := json.NewDecoder(r.Body).Decode(&createPostReq); err != nil {
@@ -17,7 +19,7 @@ func (s *PostApiServer) createPost(w http.ResponseWriter, r *http.Request) error
 	createPostReq.AccountId = accountId
 	postId, err := s.Storage.Create(*s.Context, createPostReq)
 	if err != nil {
-		return writeJson(w, http.StatusNoContent, err)
+		return writeJson(w, http.StatusBadRequest, err)
 	}
 	return writeJson(w, http.StatusOK, fmt.Sprintf("Id of the created post %s", postId))
 }
