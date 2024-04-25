@@ -8,41 +8,41 @@ servers:
     description: Social network server
 
 paths:
-  /posts/{post_id}:
-    get:
-      summary: Get post by it's Id
-      parameters:
-      - name: post_id
-        description: unique post id
-        in: path
+  /signup:
+    post:
+      description: Creates an account for the user
+      requestBody:
+        description: Account to create
         required: true
-        schema:
-          type: integer
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/accountDto"
       responses:
-        '200':
-          description: Post by given ID
+        "200":
+          description: account id
           content:
             application/json:
-              schema: 
-                $ref: '#/components/schemas/post'
+              schema:
+                $ref: "#/components/schemas/accountIdString"
         '204':
-            description: Posts not found
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      description: no data found by id
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
         '400':
           description: Validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'     
         '404':
-          description: post not found
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -52,31 +52,195 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'  
-    put:
-      summary: updating given post
+                $ref: '#/components/schemas/Error'
+  /signin:
+    post:
+      description: Generate a token for the user if account exists
+      requestBody:
+        description: Login and password
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/accountLogin"
+      responses:
+        "200":
+          description: account id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/tokenString"
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /accounts:
+    get:
+      description: Get all accounts
+      responses:
+        "200":
+          description: accounts in the network
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/accounts"
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /account/{search}:
+    get:
+      description: Get all accounts matching the given string
       parameters:
-      - name: post_id
-        description: unique post id
+      - name: search
+        description: regexp
         in: path
-        required: true
-        schema:
-          type: integer
-      - name: account_id
-        description: account id
-        in: query
-        required: true
-        schema:
-          type: integer
-      - name: content
-        description: Content of the post
-        in: query
         required: true
         schema:
           type: string
       responses:
-        '200':
-          description: Id of the created post
+        "200":
+          description: matched accounts in the network
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/accounts"
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /account:
+    get:
+      description: Get data about account
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: account in the network
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/accountRsp"
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      description: Edit the data
+      requestBody:
+        description: new account data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/accountDto"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: success string
           content:
             application/json:
               schema:
@@ -86,17 +250,29 @@ paths:
                     type: string
                     description: the result of the operation
         '204':
-            description: Posts not found
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      description: no data found by id
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
         '400':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -108,17 +284,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     delete:
-      summary: deleting the post
-      parameters:
-      - name: post_id
-        description: unique post id
-        in: path
-        required: true
-        schema:
-          type: integer
+      description: Delete account
+      security:
+        - bearerAuth: []
       responses:
-        '200':
-          description: Id of the created post
+        "200":
+          description: success string
           content:
             application/json:
               schema:
@@ -128,17 +299,29 @@ paths:
                     type: string
                     description: the result of the operation
         '204':
-            description: Posts not found
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      description: no data found by id
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
         '400':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -149,105 +332,222 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /posts:
-    post:
-      summary: Create new post
-      parameters:
-        - name: account_id
-          description: account id
-          in: query
-          required: true
-          schema:
-           type: integer
-        - name: content
-          description: Content of the post
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-            description: Id of the created post
-            content:
-              application/json:
-                schema: 
-                  $ref: '#/components/schemas/postId'
-        '400':
-            description: Validation error
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-        '500':
-            description: Connection between microservices failed
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-  /posts/account/{account_id}:
-    get:
-      summary: get posts made by account
-      parameters:
-        - name: account_id
-          description: account id
-          in: path
-          required: true
-          schema:
-           type: integer
-      responses:
-        '200':
-            description: Posts created by the user
-            content:
-              application/json:
-                schema: 
-                  $ref: '#/components/schemas/posts'
-        '204':
-            description: Messages not found
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      description: no data found by id
-        '400':
-            description: Validation error
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-        '500':
-            description: Connection between microservices failed
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
   /messages:
     post:
-      summary: create message
+      description: Message to be sent
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Description of the message
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/messageDto"
+      responses:
+        "200":
+          description: account id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/messageIdString"
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /messages/account:
+    get:
+      description: Delete account
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: messages received by account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/messages"
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /messages/msg/{message_id}:
+    get:
+      description: Get msg by id for sender and receiver
+      security:
+        - bearerAuth: []
       parameters:
-        - name: sender_id
-          description: sender account id
-          in: query
-          required: true
-          schema:
-           type: integer
-        - name: receiver_id
-          description: receiver account id
-          in: query
-          required: true
-          schema:
-           type: integer
-        - name: content
-          description: Content of the post
-          in: query
+      - name: message_id
+        description: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/messages"
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /posts/account/{account_id}:
+    get:
+      description: Get posts by account
+      parameters:
+      - name: account_id
+        description: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: posts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/posts"
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /posts/{post_id}:
+      get:
+        description: Get post by id
+        parameters:
+        - name: post_id
+          description: id
+          in: path
           required: true
           schema:
             type: string
-      responses:
-        '200':
-            description: id of the created message
+        responses:
+          "200":
+            description: posts
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/postDto"
+          '204':
+            description: No content
             content:
               application/json:
                 schema:
@@ -255,128 +555,225 @@ paths:
                   properties:
                     name:
                       type: string
-                      description: the id of created message
-        '400':
+                      description: the result of the operation
+          '400':
             description: Validation error
             content:
               application/json:
                 schema:
+                  $ref: '#/components/schemas/Error'     
+          '404':
+            description: Bad Request
+            content:
+              application/json:
+                schema:
                   $ref: '#/components/schemas/Error'
+          '500':
+            description: Connection between microservices failed
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+      put:
+        description: Post to create
+        security:
+          - bearerAuth: []
+        parameters:
+          - name: post_id
+            description: id
+            in: path
+            required: true
+            schema:
+              type: string
+        requestBody:
+          description: Description of the message
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/postDto"
+        responses:
+          "200":
+            description: success string
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: the result of the operation
+          '204':
+            description: No content
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: the result of the operation
+          '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'     
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          '404':
+            description: Bad Request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          '500':
+            description: Connection between microservices failed
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+      delete:
+        description: Delete post
+        security:
+          - bearerAuth: []
+        parameters:
+          - name: post_id
+            description: id
+            in: path
+            required: true
+            schema:
+              type: string
+        responses:
+          "200":
+            description: success string
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: the result of the operation
+          '204':
+            description: No content
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: the result of the operation
+          '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'     
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          '404':
+            description: Bad Request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          '500':
+            description: Connection between microservices failed
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+  /posts:
+    post:
+      description: Post to create
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Description of the message
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/postDto"
+      responses:
+        "200":
+          description: post id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/postIdString"
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: the result of the operation
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
-            description: Data error
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
-            description: Connection between microservices failed
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-  /messages/{message_id}:
-    get:
-      summary: get message by id
-      parameters:
-        - name: message_id
-          description: message id
-          in: path
-          required: true
-          schema:
-           type: integer
-      responses:
-        '200':
-            description: found message
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/message'
-        '204':
-            description: Messages not found
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      description: no data found by id
-        '400':
-            description: Validation error
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-        '500':
-            description: Connection between microservices failed
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-  /messages/account/{account_id}:
-    get:
-      summary: get messages to account with id
-      parameters:
-        - name: account_id
-          description: receiver's account id
-          in: path
-          required: true
-          schema:
-           type: integer
-      responses:
-        '200':
-            description: found messages
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/messages'
-        '204':
-            description: Messages not found
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      description: no data found by id
-        '400':
-            description: Validation error
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-        '500':
-            description: Connection between microservices failed
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-
+          description: Connection between microservices failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
 components:
   schemas:
-    accountId:
-      description: Account unique ID
-      type: integer
-    postId:
-      description: Post unique ID
-      type: integer
-    messageId:
-      description: Message unique ID
-      type: integer
+    tokenString:
+      description: Text with token
+      type: string
+    accountIdString:
+      description: Text with account unique ID
+      type: string
+    postIdString:
+      description: Text with post unique ID
+      type: string
+    messageIdString:
+      description: Text with message unique ID
+      type: string
     accounts:
       type: array
       items:
-        $ref: '#/components/schemas/account'
+        $ref: '#/components/schemas/accountRsp'
     posts:
       type: array
       items:
-        $ref: '#/components/schemas/post'
+        $ref: '#/components/schemas/postRsp'
     messages:
       type: array
       items:
-        $ref: '#/components/schemas/message'
-    account:
+        $ref: '#/components/schemas/messageRsp'
+    accountRsp:
       type: object
       properties:
         id:
@@ -391,7 +788,27 @@ components:
           type: string
         email:
           type: string
-    message:
+    accountDto:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+    accountLogin:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    messageRsp:
       type: object
       properties:
         id:
@@ -402,13 +819,27 @@ components:
           type: integer
         content:
           type: string
-    post:
+    messageDto:
+      type: object
+      properties:
+        sender_id:
+          type: integer
+        receiver_id:
+          type: integer
+        content:
+          type: string
+    postRsp:
       type: object
       properties:
         id:
           type: integer
         account_id:
           type: integer
+        content:
+          type: string
+    postDto:
+      type: object
+      properties:
         content:
           type: string
 
@@ -421,8 +852,7 @@ components:
           description: Error description
           type: string
   securitySchemes:
-      basicAuth:     
-        type: http
-        scheme: basic
-security:
-  - basicAuth: []
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
