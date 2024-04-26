@@ -17,6 +17,11 @@ docker-compose up user_service
 ```
 
 ## Тестирование
+Для первого тестировачного запроса можно использовать один из этих (id взяты из файлов для заполнения mongoDb из папки scripts):  
+3080230025315 - Id хозяина поста  
+9193895285872 - Id получателя сообщения  
+http://localhost:8080/posts/account/3080230025315  
+http://localhost:8080/messages/account/9193895285872  
 Для скринов использовался postman. Более подробно об эндпоинтах можно посмотреть в `index.yaml`.
 Добавление нового сообщения  
 ![add msg](https://github.com/Brinckley/SystemArchitecture_2024/blob/main/Lab_3_Stateful_service_for_NoSql/imgs/il1.jpg)
