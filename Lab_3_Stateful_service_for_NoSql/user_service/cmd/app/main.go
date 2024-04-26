@@ -8,10 +8,9 @@ import (
 
 func main() {
 	userServicePort := os.Getenv("USER_SERVICE_PORT")
-	accountServiceUrl := os.Getenv("ACCOUNT_SERVICE_URL")
 	msgServiceUrl := os.Getenv("MSG_SERVICE_URL")
 	postServiceUrl := os.Getenv("POST_SERVICE_URL")
-	userApiServer := server.NewUserApiServer(userServicePort, accountServiceUrl, msgServiceUrl, postServiceUrl)
+	userApiServer := server.NewUserApiServer(userServicePort, msgServiceUrl, postServiceUrl)
 	err := userApiServer.Run()
 	if err != nil {
 		log.Fatalf("can't start the userService %s", err)
