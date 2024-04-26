@@ -124,16 +124,6 @@ services:
    networks:
      - sn-network
 
-  #insert_maker:
-  #  container_name: insert_maker
-  #  build:
-  #    context: ./insert_maker
-  #  depends_on:
-  #    postgres:
-  #      condition: service_healthy
-  #  networks:
-  #    - sn-network
-
 networks:
   sn-network:
     driver: "bridge"
