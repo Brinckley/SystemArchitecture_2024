@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -88,6 +89,7 @@ func (s *UserApiServer) signInAccount(responseWriter http.ResponseWriter, userRe
 	if err != nil {
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_SEND_ACCOUNT_PROXY_REQ)
 	}
+	log.Printf("Header : %s", accountResp.Header.Get("Auth-token"))
 	util.CopyHeadersToWriter(accountResp, responseWriter)
 	return middleware.WriteJsonFromResponse(responseWriter, accountResp.StatusCode, accountResp)
 }

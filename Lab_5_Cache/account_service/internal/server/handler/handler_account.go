@@ -76,7 +76,8 @@ func (s *AccountApiServer) signInAccount(w http.ResponseWriter, r *http.Request)
 		if err != nil {
 			return response_error.New(err, http.StatusInternalServerError, ERR_SIGN_IN_PASSWORD)
 		}
-		return middleware.WriteJson(w, http.StatusOK, signedString)
+		w.Header().Add("Auth-token", signedString)
+		return middleware.WriteWithTokenHeader(w, http.StatusOK)
 	}
 	return response_error.New(err, http.StatusBadRequest, ERR_HANDLE_TOKEN)
 }

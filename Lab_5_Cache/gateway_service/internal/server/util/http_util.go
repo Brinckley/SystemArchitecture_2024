@@ -1,6 +1,9 @@
 package util
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
 func CopyHeadersToRequest(req *http.Request, r *http.Request) {
 	for name, values := range r.Header {
@@ -13,6 +16,7 @@ func CopyHeadersToRequest(req *http.Request, r *http.Request) {
 func CopyHeadersToWriter(resp *http.Response, writer http.ResponseWriter) {
 	for name, values := range resp.Header {
 		for _, value := range values {
+			log.Println("Header:", name, value)
 			writer.Header().Add(name, value)
 		}
 	}
