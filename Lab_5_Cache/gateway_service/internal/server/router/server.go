@@ -35,7 +35,7 @@ func (s *UserApiServer) Run() error {
 
 	// no need auth block
 	router.HandleFunc("/accounts", middleware.MakeHTTPHandleFunc(s.getAccounts)).Methods(http.MethodGet)
-	router.HandleFunc("/account/search", middleware.MakeHTTPHandleFunc(s.getAccountsByMask)).Methods(http.MethodGet)
+	router.HandleFunc("/accounts/search", middleware.MakeHTTPHandleFunc(s.getAccountsByMask)).Methods(http.MethodGet)
 
 	// no need auth block
 	router.HandleFunc("/account/{account_id}", middleware.MakeHTTPHandleFunc(s.getAccount)).Methods(http.MethodGet)

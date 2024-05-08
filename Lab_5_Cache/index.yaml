@@ -136,7 +136,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /account/{search}:
+  
+  /accounts/{search}:
     get:
       description: Get all accounts matching the given string
       parameters:
@@ -181,52 +182,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+                
+  /account/{account_id}:
+      get:
+        description: Get data about account
+        parameters:
+        - name: account_id
+          description: account id
+          in: path
+          required: true
+          schema:
+            type: string
+        responses:
+          "200":
+            description: account in the network
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/accountRsp"
+          '204':
+            description: No content
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: the result of the operation
+          '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'     
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          '404':
+            description: Bad Request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          '500':
+            description: Connection between microservices failed
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
   /account:
-    get:
-      description: Get data about account
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: account in the network
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/accountRsp"
-        '204':
-          description: No content
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    description: the result of the operation
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'     
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Connection between microservices failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
     put:
       description: Edit the data
       requestBody:
