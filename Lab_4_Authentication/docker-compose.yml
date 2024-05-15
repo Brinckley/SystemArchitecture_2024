@@ -144,7 +144,6 @@ services:
   mongo-setup:
     container_name: mongo-setup
     image: mongo:5.0
-    restart: on-failure
     volumes:
       - ./scripts:/scripts
     depends_on:

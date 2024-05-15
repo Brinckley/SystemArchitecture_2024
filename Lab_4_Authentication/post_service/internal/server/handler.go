@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"post_service/internal"
+	"strings"
 )
 
 func (s *PostApiServer) createPost(w http.ResponseWriter, r *http.Request) error {
-	log.Printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 	accountId := mux.Vars(r)["account_id"]
 	var createPostReq internal.PostDto
 	if err := json.NewDecoder(r.Body).Decode(&createPostReq); err != nil {
@@ -49,9 +48,16 @@ func (s *PostApiServer) updatePost(w http.ResponseWriter, r *http.Request) error
 	if err := json.NewDecoder(r.Body).Decode(&updatePostReq); err != nil {
 		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("fail to handle data error %v", err))
 	}
+	postById, err := s.Storage.GetById(*s.Context, postId)
+	if err != nil {
+		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("fail to find post error %v", err))
+	}
+	if strings.Compare(postById.AccountId, accountId) != 0 {
+		return writeJson(w, http.StatusBadRequest, "no such post")
+	}
 	updatePostReq.Id = postId
 	updatePostReq.AccountId = accountId
-	err := s.Storage.Update(*s.Context, updatePostReq)
+	err = s.Storage.Update(*s.Context, updatePostReq)
 	if err != nil {
 		return writeJson(w, http.StatusBadRequest, err)
 	}
@@ -61,7 +67,14 @@ func (s *PostApiServer) updatePost(w http.ResponseWriter, r *http.Request) error
 func (s *PostApiServer) deletePost(w http.ResponseWriter, r *http.Request) error {
 	accountId := mux.Vars(r)["account_id"]
 	postId := mux.Vars(r)["post_id"]
-	err := s.Storage.Delete(*s.Context, accountId, postId)
+	postById, err := s.Storage.GetById(*s.Context, postId)
+	if err != nil {
+		return writeJson(w, http.StatusBadRequest, fmt.Sprintf("fail to find post error %v", err))
+	}
+	if strings.Compare(postById.AccountId, accountId) != 0 {
+		return writeJson(w, http.StatusBadRequest, "no such post")
+	}
+	err = s.Storage.Delete(*s.Context, accountId, postId)
 	if err != nil {
 		return writeJson(w, http.StatusBadRequest, err)
 	}
