@@ -2,7 +2,7 @@ package router
 
 import (
 	"Gateway/internal/server/middleware"
-	"Gateway/internal/storage"
+	"Gateway/internal/storage/cache"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -12,10 +12,10 @@ type UserApiServer struct {
 	AccountUrl string
 	MsgUrl     string
 	PostUrl    string
-	Cache      storage.Cache
+	Cache      cache.SNCache
 }
 
-func NewUserApiServer(userPort, accountUrl, msgUrl, postUrl string, cache storage.Cache) *UserApiServer {
+func NewUserApiServer(userPort, accountUrl, msgUrl, postUrl string, cache cache.SNCache) *UserApiServer {
 	return &UserApiServer{
 		UserPort:   userPort,
 		AccountUrl: accountUrl,

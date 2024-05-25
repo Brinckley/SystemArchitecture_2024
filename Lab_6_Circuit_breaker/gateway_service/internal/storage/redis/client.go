@@ -1,8 +1,6 @@
 package cache
 
 import (
-	"Gateway/internal/entity"
-	"Gateway/internal/storage"
 	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
@@ -33,17 +31,4 @@ func NewRedisClient(host, port, password string, db int, ttl time.Duration, ctx 
 		ttl:    ttl,
 		client: client,
 	}
-}
-
-func (r *RedisCache) Get(key string) (account entity.Account, err error) {
-	err = r.client.Get(r.ctx, key).Scan(&account)
-	if err != nil {
-		return account, storage.NewCacheError(fmt.Sprintf("cannot find account error : %s", err))
-	}
-	return account, nil
-}
-
-func (r *RedisCache) Set(key string, account entity.Account) error {
-	statusCmd := r.client.Set(r.ctx, "accountId:"+key, account, r.ttl)
-	return statusCmd.Err()
 }

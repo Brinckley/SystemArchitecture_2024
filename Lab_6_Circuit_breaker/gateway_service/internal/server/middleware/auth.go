@@ -9,12 +9,8 @@ import (
 )
 
 const (
-	authHeader             = "Authorization"
-	signingKey             = "wi2omp{wr2o*#3he3uJls@hsl3sa48"
-	ERR_UNAUTHORIZED       = "unauthorized user"
-	ERR_WRONG_TOKEN_FORMAT = "wrong token format"
-	TOKEN_HEADER_NAME      = "Authorization"
-	HEADER_USER_ID         = "User-Id"
+	TOKEN_HEADER_NAME = "Authorization"
+	HEADER_USER_ID    = "User-Id"
 )
 
 type apiAuthorizedFunc func(w http.ResponseWriter, r *http.Request, accountId string) *response_error.Error

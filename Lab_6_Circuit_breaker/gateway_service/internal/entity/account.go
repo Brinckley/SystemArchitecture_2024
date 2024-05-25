@@ -36,3 +36,7 @@ func (a SignUpAccount) MarshalBinary() (data []byte, err error) {
 func (a *SignUpAccount) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, a)
 }
+
+type AccountCollection struct {
+	Accounts map[string]Account
+}

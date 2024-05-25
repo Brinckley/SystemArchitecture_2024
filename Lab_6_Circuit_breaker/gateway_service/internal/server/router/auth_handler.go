@@ -86,7 +86,7 @@ func (s *UserApiServer) writeAccountWithIdToCache(accountSignUp entity.SignUpAcc
 		LastName:  accountSignUp.LastName,
 		Email:     accountSignUp.Email,
 	}
-	return s.Cache.Set(strconv.Itoa(id), account)
+	return s.Cache.SetAccount(strconv.Itoa(id), account)
 }
 
 func (s *UserApiServer) signInAccount(responseWriter http.ResponseWriter, userReq *http.Request) *response_error.Error {
@@ -94,7 +94,6 @@ func (s *UserApiServer) signInAccount(responseWriter http.ResponseWriter, userRe
 	if err != nil {
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_CREATE_ACCOUNT_PROXY_REQ)
 	}
-	log.Println("URLLLLLL ", proxyReq.URL)
 	accountResp, err := http.DefaultClient.Do(proxyReq)
 	if err != nil {
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_SEND_ACCOUNT_PROXY_REQ)
