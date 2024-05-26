@@ -1,6 +1,9 @@
 package circuit_breaker
 
-import "Gateway/internal/storage/cache"
+import (
+	"Gateway/internal/storage/cache"
+	"log"
+)
 
 type CircuitBreakerPost struct {
 	serviceName  string
@@ -25,7 +28,8 @@ func (c *CircuitBreakerPost) UpdateState() error {
 	if err != nil {
 		return err
 	}
-	c.failureCount = counter
+	c.failureCount = counter + 1
+	log.Printf("In the post circuit breaker new counter setting %d", c.failureCount)
 	if c.failureCount >= c.maxFailures {
 		c.state = StateOpen
 	}

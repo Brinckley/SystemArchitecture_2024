@@ -79,24 +79,7 @@ func (s *UserApiServer) getMessages(responseWriter http.ResponseWriter, userReq 
 	}
 
 	msgResp, err := http.DefaultClient.Do(proxyReq)
-	if err != nil {
-		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_SEND_MSG_PROXY_REQ)
-	}
-
-	util.CopyHeadersToWriter(msgResp, responseWriter)
-
-	if msgResp.StatusCode == http.StatusOK {
-		err := s.CircuitBreakerMessage.ClearCounter() // if everything is ok we clear the counter
-		if err != nil {
-			log.Printf("[ERR] Failed to write clear the circuitBreaker Message counter %s", err)
-		}
-		messagesToCache, err := s.writeMessagesToCache(accountId, msgResp.Body)
-		if err != nil {
-			log.Printf("[ERR] Failed to write messages to cache error %s", err)
-			return middleware.WriteJson(responseWriter, msgResp.StatusCode, messagesToCache)
-		}
-		return middleware.WriteJson(responseWriter, http.StatusOK, messagesToCache)
-	} else if msgResp.StatusCode >= 500 { // smth went wrong -> need to update circuit breaker
+	if err != nil { // smth went wrong -> need to update circuit breaker
 		err := s.CircuitBreakerMessage.UpdateState() // incrementing
 		if err != nil {
 			return middleware.WriteJson(responseWriter, http.StatusInternalServerError,
@@ -111,11 +94,27 @@ func (s *UserApiServer) getMessages(responseWriter http.ResponseWriter, userReq 
 				return middleware.WriteJson(responseWriter, http.StatusInternalServerError,
 					fmt.Sprintf("something fatally went wrong with fetching data from cache %s", err))
 			}
-			return middleware.WriteJson(responseWriter, http.StatusOK, messages)
+			return middleware.WriteJson(responseWriter, http.StatusOK, messages.Messages)
 		}
+		return middleware.WriteJson(responseWriter, http.StatusInternalServerError, "Something went wrong, try again later.")
 	}
 
-	return middleware.WriteJsonFromResponse(responseWriter, msgResp.StatusCode, msgResp)
+	util.CopyHeadersToWriter(msgResp, responseWriter)
+	statusCode := msgResp.StatusCode
+	log.Println("MessageService statusCode:", statusCode)
+	if statusCode == http.StatusOK {
+		err := s.CircuitBreakerMessage.ClearCounter() // if everything is ok we clear the counter
+		if err != nil {
+			log.Printf("[ERR] Failed to write clear the circuitBreaker Message counter %s", err)
+		}
+		messagesToCache, err := s.writeMessagesToCache(accountId, msgResp.Body)
+		if err != nil {
+			log.Printf("[ERR] Failed to write messages to cache error %s", err)
+			return middleware.WriteJson(responseWriter, statusCode, messagesToCache.Messages)
+		}
+		return middleware.WriteJson(responseWriter, http.StatusOK, messagesToCache.Messages)
+	}
+	return middleware.WriteJsonFromResponse(responseWriter, statusCode, msgResp)
 }
 
 func (s *UserApiServer) writeMessageToCache(messageId string, body io.ReadCloser) (message entity.Message, err error) {
@@ -135,10 +134,11 @@ func (s *UserApiServer) writeMessagesToCache(accountId string, body io.ReadClose
 	if err != nil {
 		return messages, err
 	}
-	err = json.Unmarshal(bytes, &messages)
+	err = json.Unmarshal(bytes, &messages.Messages)
 	if err != nil {
 		return messages, err
 	}
+
 	err = s.Cache.SetMessageCollection(accountId, messages)
 	if err != nil {
 		return messages, err

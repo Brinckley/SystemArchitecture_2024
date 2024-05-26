@@ -43,25 +43,7 @@ func (s *UserApiServer) getPosts(responseWriter http.ResponseWriter, userReq *ht
 	}
 
 	postResp, err := http.DefaultClient.Do(proxyReq)
-	if err != nil {
-		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_SEND_POSTS_PROXY_REQ)
-	}
-
-	// TODO: Circuit Breaker
-
-	util.CopyHeadersToWriter(postResp, responseWriter)
-	if postResp.StatusCode == http.StatusOK {
-		err := s.CircuitBreakerPost.ClearCounter()
-		if err != nil {
-			log.Printf("[ERR] Failed to write clear the circuitBreaker Post counter %s", err)
-		}
-		postsToCache, err := s.writePostsToCache(accountId, postResp.Body)
-		if err != nil {
-			log.Printf("[ERR] Failed to write account to cache error %s", err)
-			return middleware.WriteJson(responseWriter, postResp.StatusCode, postsToCache)
-		}
-		return middleware.WriteJson(responseWriter, http.StatusOK, postsToCache)
-	} else if postResp.StatusCode >= 500 { // smth went wrong -> need to update circuit breaker
+	if err != nil { // smth went wrong -> need to update circuit breaker
 		err := s.CircuitBreakerPost.UpdateState() // incrementing
 		if err != nil {
 			return middleware.WriteJson(responseWriter, http.StatusInternalServerError,
@@ -79,8 +61,25 @@ func (s *UserApiServer) getPosts(responseWriter http.ResponseWriter, userReq *ht
 			}
 			return middleware.WriteJson(responseWriter, http.StatusOK, posts)
 		}
+		return middleware.WriteJson(responseWriter, http.StatusInternalServerError, "Something went wrong, try again later.")
 	}
-	return middleware.WriteJsonFromResponse(responseWriter, postResp.StatusCode, postResp)
+
+	util.CopyHeadersToWriter(postResp, responseWriter)
+	statusCode := postResp.StatusCode
+	log.Println("PostService statusCode:", statusCode)
+	if statusCode == http.StatusOK {
+		err := s.CircuitBreakerPost.ClearCounter()
+		if err != nil {
+			log.Printf("[ERR] Failed to write clear the circuitBreaker Post counter %s", err)
+		}
+		postsToCache, err := s.writePostsToCache(accountId, postResp.Body)
+		if err != nil {
+			log.Printf("[ERR] Failed to write posts to cache error %s", err)
+			return middleware.WriteJson(responseWriter, statusCode, postsToCache.Posts)
+		}
+		return middleware.WriteJson(responseWriter, http.StatusOK, postsToCache.Posts)
+	}
+	return middleware.WriteJsonFromResponse(responseWriter, statusCode, postResp)
 }
 
 func (s *UserApiServer) getPost(responseWriter http.ResponseWriter, userReq *http.Request) *response_error.Error {
@@ -182,7 +181,7 @@ func (s *UserApiServer) writePostsToCache(accountId string, body io.ReadCloser) 
 	if err != nil {
 		return posts, err
 	}
-	err = json.Unmarshal(bytes, &posts)
+	err = json.Unmarshal(bytes, &posts.Posts)
 	if err != nil {
 		return posts, err
 	}

@@ -17,5 +17,13 @@ func (a *Post) UnmarshalBinary(data []byte) error {
 }
 
 type PostCollection struct {
-	Posts map[string]Post
+	Posts []Post
+}
+
+func (a PostCollection) MarshalBinary() (data []byte, err error) {
+	return json.Marshal(a)
+}
+
+func (a *PostCollection) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, a)
 }

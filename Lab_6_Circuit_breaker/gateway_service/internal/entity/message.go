@@ -18,5 +18,13 @@ func (a *Message) UnmarshalBinary(data []byte) error {
 }
 
 type MessagesCollection struct {
-	Messages map[string]Message
+	Messages []Message
+}
+
+func (a MessagesCollection) MarshalBinary() (data []byte, err error) {
+	return json.Marshal(a)
+}
+
+func (a *MessagesCollection) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, a)
 }
