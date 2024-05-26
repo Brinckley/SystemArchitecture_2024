@@ -2,13 +2,15 @@ package router
 
 import (
 	"Gateway/internal/entity"
-	"Gateway/internal/server/middleware"
-	"Gateway/internal/server/response_error"
-	"Gateway/internal/server/util"
+	"Gateway/internal/service/middleware"
+	"Gateway/internal/service/response_error"
+	"Gateway/internal/service/util"
 	"Gateway/internal/storage"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/redis/go-redis/v9"
 	"io"
 	"log"
 	"net/http"
@@ -81,17 +83,38 @@ func (s *UserApiServer) getMessages(responseWriter http.ResponseWriter, userReq 
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_SEND_MSG_PROXY_REQ)
 	}
 
-	// TODO: Circuit Breaker
-
 	util.CopyHeadersToWriter(msgResp, responseWriter)
+
 	if msgResp.StatusCode == http.StatusOK {
+		err := s.CircuitBreakerMessage.ClearCounter() // if everything is ok we clear the counter
+		if err != nil {
+			log.Printf("[ERR] Failed to write clear the circuitBreaker Message counter %s", err)
+		}
 		messagesToCache, err := s.writeMessagesToCache(accountId, msgResp.Body)
 		if err != nil {
-			log.Printf("[ERR] Failed to write account to cache error %s", err)
+			log.Printf("[ERR] Failed to write messages to cache error %s", err)
 			return middleware.WriteJson(responseWriter, msgResp.StatusCode, messagesToCache)
 		}
 		return middleware.WriteJson(responseWriter, http.StatusOK, messagesToCache)
+	} else if msgResp.StatusCode >= 500 { // smth went wrong -> need to update circuit breaker
+		err := s.CircuitBreakerMessage.UpdateState() // incrementing
+		if err != nil {
+			return middleware.WriteJson(responseWriter, http.StatusInternalServerError,
+				fmt.Sprintf("something fatally went wrong %s", err))
+		}
+		if s.CircuitBreakerMessage.IsCircuitOpen() { // checking if counter has achieved the max mark
+			messages, err := s.Cache.GetMessageCollection(accountId)
+			if errors.Is(err, redis.Nil) { // data's gone down by TTL, or it has never existed
+				return middleware.WriteJson(responseWriter, http.StatusInternalServerError,
+					"Nothing in the cache anymore. App is dead. Please, wait.")
+			} else if err != nil {
+				return middleware.WriteJson(responseWriter, http.StatusInternalServerError,
+					fmt.Sprintf("something fatally went wrong with fetching data from cache %s", err))
+			}
+			return middleware.WriteJson(responseWriter, http.StatusOK, messages)
+		}
 	}
+
 	return middleware.WriteJsonFromResponse(responseWriter, msgResp.StatusCode, msgResp)
 }
 

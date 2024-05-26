@@ -2,7 +2,7 @@ package handler
 
 import (
 	"account_service/internal/repository"
-	"account_service/internal/server/middleware"
+	"account_service/internal/service/middleware"
 	"github.com/gorilla/mux"
 	"net/http"
 )

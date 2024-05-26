@@ -1,27 +1,32 @@
 package router
 
 import (
-	"Gateway/internal/server/middleware"
+	"Gateway/internal/service/circuit_breaker"
+	"Gateway/internal/service/middleware"
 	"Gateway/internal/storage/cache"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 type UserApiServer struct {
-	UserPort   string
-	AccountUrl string
-	MsgUrl     string
-	PostUrl    string
-	Cache      cache.SNCache
+	UserPort              string
+	AccountUrl            string
+	MsgUrl                string
+	PostUrl               string
+	Cache                 cache.SNCache
+	CircuitBreakerPost    circuit_breaker.CircuitBreaker
+	CircuitBreakerMessage circuit_breaker.CircuitBreaker
 }
 
-func NewUserApiServer(userPort, accountUrl, msgUrl, postUrl string, cache cache.SNCache) *UserApiServer {
+func NewUserApiServer(userPort, accountUrl, msgUrl, postUrl string, cache cache.SNCache, cbPost, cbMessage circuit_breaker.CircuitBreaker) *UserApiServer {
 	return &UserApiServer{
-		UserPort:   userPort,
-		AccountUrl: accountUrl,
-		MsgUrl:     msgUrl,
-		PostUrl:    postUrl,
-		Cache:      cache,
+		UserPort:              userPort,
+		AccountUrl:            accountUrl,
+		MsgUrl:                msgUrl,
+		PostUrl:               postUrl,
+		Cache:                 cache,
+		CircuitBreakerPost:    cbPost,
+		CircuitBreakerMessage: cbMessage,
 	}
 }
 

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"account_service/internal/server/response_error"
+	"account_service/internal/service/response_error"
 	"encoding/json"
 	"net/http"
 )

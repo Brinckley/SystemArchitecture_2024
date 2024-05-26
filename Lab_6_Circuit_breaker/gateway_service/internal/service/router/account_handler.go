@@ -2,9 +2,9 @@ package router
 
 import (
 	"Gateway/internal/entity"
-	"Gateway/internal/server/middleware"
-	"Gateway/internal/server/response_error"
-	"Gateway/internal/server/util"
+	"Gateway/internal/service/middleware"
+	"Gateway/internal/service/response_error"
+	"Gateway/internal/service/util"
 	"Gateway/internal/storage"
 	"encoding/json"
 	"errors"
@@ -89,7 +89,14 @@ func (s *UserApiServer) updateAccount(responseWriter http.ResponseWriter, userRe
 	if err != nil {
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_SEND_ACCOUNT_PROXY_REQ)
 	}
+
 	util.CopyHeadersToWriter(accountResp, responseWriter)
+	if accountResp.StatusCode == http.StatusOK {
+		err := s.Cache.DeleteAccount(accountId)
+		if err != nil {
+			log.Printf("[ERR] Failed to delete account %s from cache error %s", accountId, err)
+		}
+	}
 	return middleware.WriteJsonFromResponse(responseWriter, accountResp.StatusCode, accountResp)
 }
 
@@ -102,7 +109,14 @@ func (s *UserApiServer) deleteAccount(responseWriter http.ResponseWriter, userRe
 	if err != nil {
 		return response_error.New(err, http.StatusInternalServerError, UNABLE_TO_SEND_ACCOUNT_PROXY_REQ)
 	}
+
 	util.CopyHeadersToWriter(accountResp, responseWriter)
+	if accountResp.StatusCode == http.StatusOK {
+		err := s.Cache.DeleteAccount(accountId)
+		if err != nil {
+			log.Printf("[ERR] Failed to delete account %s from cache error %s", accountId, err)
+		}
+	}
 	return middleware.WriteJsonFromResponse(responseWriter, accountResp.StatusCode, accountResp)
 }
 

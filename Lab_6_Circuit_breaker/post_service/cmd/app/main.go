@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
-	"post_service/internal/server"
+	"post_service/internal/service"
 	"post_service/internal/storage/mongo"
 )
 
@@ -23,6 +23,6 @@ func main() {
 	storage := mongo.NewStorage(mongoDatabase, collectionName)
 
 	log.Println("---------------CONNECTED TO MONGO FROM POST SERVICE---------------")
-	apiServer := server.NewPostApiServer(appPort, storage, &ctx)
+	apiServer := service.NewPostApiServer(appPort, storage, &ctx)
 	apiServer.Run()
 }

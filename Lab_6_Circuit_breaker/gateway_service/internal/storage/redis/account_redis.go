@@ -20,3 +20,8 @@ func (r *RedisCache) SetAccount(key string, account entity.Account) error {
 	statusCmd := r.client.Set(r.ctx, ACCOUNT_REDIS_PREFIX+key, account, r.ttl)
 	return statusCmd.Err()
 }
+
+func (r *RedisCache) DeleteAccount(key string) error {
+	statusCmd := r.client.Del(r.ctx, ACCOUNT_REDIS_PREFIX+key)
+	return statusCmd.Err()
+}

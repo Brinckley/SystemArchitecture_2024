@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"log"
-	"message_service/internal/server"
+	"message_service/internal/service"
 	"message_service/internal/storage/mongo"
 	"os"
 )
@@ -23,6 +23,6 @@ func main() {
 	storage := mongo.NewStorage(mongoDatabase, collectionName)
 
 	log.Println("---------------CONNECTED TO MONGO FROM MESSAGE SERVICE---------------")
-	apiServer := server.NewMessageApiServer(appPort, storage, &ctx)
+	apiServer := service.NewMessageApiServer(appPort, storage, &ctx)
 	apiServer.Run()
 }

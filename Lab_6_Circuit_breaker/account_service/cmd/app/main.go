@@ -2,7 +2,7 @@ package main
 
 import (
 	"account_service/internal/repository/postgres"
-	"account_service/internal/server/handler"
+	"account_service/internal/service/handler"
 	"log"
 	"os"
 )

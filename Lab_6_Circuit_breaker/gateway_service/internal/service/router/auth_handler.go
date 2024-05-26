@@ -2,9 +2,9 @@ package router
 
 import (
 	"Gateway/internal/entity"
-	"Gateway/internal/server/middleware"
-	"Gateway/internal/server/response_error"
-	"Gateway/internal/server/util"
+	"Gateway/internal/service/middleware"
+	"Gateway/internal/service/response_error"
+	"Gateway/internal/service/util"
 	"bytes"
 	"encoding/json"
 	"io"

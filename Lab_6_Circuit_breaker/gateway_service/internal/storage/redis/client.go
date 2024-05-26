@@ -11,10 +11,11 @@ import (
 type RedisCache struct {
 	ctx    context.Context
 	ttl    time.Duration
+	cbTtl  time.Duration
 	client *redis.Client
 }
 
-func NewRedisClient(host, port, password string, db int, ttl time.Duration, ctx context.Context) *RedisCache {
+func NewRedisClient(host, port, password string, db int, ttl, cbTtl time.Duration, ctx context.Context) *RedisCache {
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", host, port),
 		Password: password,
@@ -29,6 +30,7 @@ func NewRedisClient(host, port, password string, db int, ttl time.Duration, ctx 
 	return &RedisCache{
 		ctx:    ctx,
 		ttl:    ttl,
+		cbTtl:  cbTtl,
 		client: client,
 	}
 }

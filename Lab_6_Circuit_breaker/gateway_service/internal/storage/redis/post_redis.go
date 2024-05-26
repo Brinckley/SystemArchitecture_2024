@@ -24,6 +24,11 @@ func (r *RedisCache) SetPost(key string, post entity.Post) error {
 	return statusCmd.Err()
 }
 
+func (r *RedisCache) DeletePost(key string) error {
+	statusCmd := r.client.Del(r.ctx, POST_REDIS_PREFIX+key)
+	return statusCmd.Err()
+}
+
 func (r *RedisCache) GetPostCollection(accountId string) (posts entity.PostCollection, err error) {
 	err = r.client.Get(r.ctx, POSTS_WITH_ACCOUNT_REDIS_PREFIX+accountId).Scan(&posts)
 	if err != nil {

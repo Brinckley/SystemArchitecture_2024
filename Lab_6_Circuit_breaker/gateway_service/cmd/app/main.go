@@ -1,7 +1,8 @@
 package main
 
 import (
-	"Gateway/internal/server/router"
+	"Gateway/internal/service/circuit_breaker"
+	"Gateway/internal/service/router"
 	cache "Gateway/internal/storage/redis"
 	"context"
 	"log"
@@ -20,13 +21,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cache DB Error: %v", err)
 	}
-	redisClient := cache.NewRedisClient(cacheHost, cachePort, cachePassword, cacheDbInt, time.Second*60, ctx)
+	ttl := time.Second * 60
+	cbTtl := time.Minute * 5
+	redisClient := cache.NewRedisClient(cacheHost, cachePort, cachePassword, cacheDbInt, ttl, cbTtl, ctx)
+
+	circuitBreakerPost := circuit_breaker.NewPostCircuitBreaker(5, redisClient)
+	circuitBreakerMessage := circuit_breaker.NewMessageCircuitBreaker(5, redisClient)
 
 	userServicePort := os.Getenv("GATEWAY_SERVICE_PORT")
 	accountServiceUrl := os.Getenv("ACCOUNT_SERVICE_URL")
 	msgServiceUrl := os.Getenv("MSG_SERVICE_URL")
 	postServiceUrl := os.Getenv("POST_SERVICE_URL")
-	userApiServer := router.NewUserApiServer(userServicePort, accountServiceUrl, msgServiceUrl, postServiceUrl, redisClient)
+	userApiServer := router.NewUserApiServer(userServicePort, accountServiceUrl, msgServiceUrl, postServiceUrl,
+		redisClient, circuitBreakerPost, circuitBreakerMessage)
 	err = userApiServer.Run()
 	if err != nil {
 		log.Fatalf("can't start the userService %s", err)

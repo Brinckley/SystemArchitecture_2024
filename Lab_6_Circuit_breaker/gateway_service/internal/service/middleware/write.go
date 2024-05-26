@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"Gateway/internal/server/response_error"
+	"Gateway/internal/service/response_error"
 	"encoding/json"
 	"io"
 	"net/http"
